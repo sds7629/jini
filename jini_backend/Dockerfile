@@ -5,9 +5,9 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get -y update
 
-RUN mkdir /jiniserver
-ADD . /jiniserver
-WORKDIR /jiniserver
+RUN mkdir /usr/src/app
+ADD . /usr/src/app
+WORKDIR /usr/src/app
 
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip
