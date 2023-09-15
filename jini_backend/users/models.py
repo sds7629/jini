@@ -1,5 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser,PermissionsMixin
+from django.contrib.auth.models import (
+    BaseUserManager,
+    AbstractBaseUser,
+    PermissionsMixin,
+)
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True  # 마이그레이션에 UserManager에 포함하는 코드
@@ -49,6 +54,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     class GenderChoices(models.TextChoices):
         """
@@ -58,7 +64,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         MALE = ("male", "Male")
         FEMALE = ("female", "Female")
 
-    email=models.EmailField(verbose_name="email address", max_length= 100, unique=True, null=False, blank=False) 
+    email = models.EmailField(
+        verbose_name="email address",
+        max_length=100,
+        unique=True,
+        null=False,
+        blank=False,
+    )
     gender = models.CharField(max_length=6, choices=GenderChoices.choices)
     nickname = models.CharField(max_length=15, unique=True, null=False, blank=False)
     name = models.CharField(max_length=10)
@@ -67,11 +79,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
-
+    description = models.TextField(null=True, blank=True)
     objects = UserManager()
 
     USERNAME_FIELD = "email"  # 로그인에 사용되는 필드입니당
-    REQUIRED_FIELDS = ["nickname", "name", "gender"] #어드민유저 만들때
+    REQUIRED_FIELDS = ["nickname", "name", "gender"]  # 어드민유저 만들때
 
     def __str__(self):
         return self.email

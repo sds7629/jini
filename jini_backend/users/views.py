@@ -36,8 +36,8 @@ class UserViewSet(viewsets.ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     @extend_schema(
-        tags=["마이페이지"],
-        description="마이페이지",
+        tags=[""],
+        description="",
         responses=serializers.UserSerializer,
     )
     def retrieve(self, request, *args, **kwargs):
@@ -109,17 +109,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return res
 
     @extend_schema(
-        tags=["마이인포"],
-        description="마이인포",
-        responses=serializers.UserSerializer,
-    )
-    @action(detail=False)
-    def get_info(self, request):
-        user = request.user
-        serializer = serializers.ListUserSerializer(user)
-        return Response(serializer.data)
-
-    @extend_schema(
         tags=["로그인"],
         description="로그인",
         responses=serializers.UserSerializer,
@@ -178,3 +167,27 @@ class UserViewSet(viewsets.ModelViewSet):
             request.user.is_active = False
             request.user.save()
             return Response({"message": "회원탈퇴 완료"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@extend_schema(
+    tags=["마이인포"],
+    description="마이인포",
+    responses=serializers.ListUserSerializer,
+)
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])
+def get_info(request):
+    if request.method == "GET":
+        user = request.user
+        serializer = serializers.ListUserSerializer(user)
+        return Response(serializer.data)
+    else:
+        queryset = request.user
+        serializer = serializers.ListUserSerializer(
+            queryset,
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        update_user = serializer.save()
+        return Response(serializers.ListUserSerializer(update_user).data)
