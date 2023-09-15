@@ -1,11 +1,25 @@
 from rest_framework import serializers
 from .models import Feed
+from django.db.models import Count
 from reviews.serializers import ReviewSerializer
+from categories.serializers import CategorySerializer
 
 
-class FeedSerializer(serializers.ModelSerializer):
+class PostFeedSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+
+    class Meta:
+        model = Feed
+        exclude = (
+            "writer",
+            "like_users",
+        )
+
+
+class GetFeedSerializer(serializers.ModelSerializer):
     writer = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Feed
@@ -16,6 +30,9 @@ class FeedSerializer(serializers.ModelSerializer):
 
     def get_category(self, obj):
         return obj.kind
+
+    def get_review_count(self, obj):
+        return len(obj.reviews_review)
 
 
 class FeedDetailSerializer(serializers.ModelSerializer):

@@ -27,4 +27,5 @@ urlpatterns = [
     path("", include(review_router.urls)),
     path("feeds/<int:feed_pk>/likes", views.likes),
     path("updel_reply/<int:reply_pk>/", views.updel_reply),
+    path("feeds/mysecret", views.my_secret_feed),
 ]

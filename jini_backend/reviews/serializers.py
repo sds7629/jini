@@ -5,6 +5,15 @@ from replies.models import Reply
 from replies.serializers import ReplySerializer
 
 
+class PostReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        exclude = (
+            "feed",
+            "writer",
+        )
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     writer = serializers.SerializerMethodField()
     replies = serializers.SerializerMethodField()

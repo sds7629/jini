@@ -12,17 +12,50 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, api_view, permission_classes
 from categories.models import Category
 from reviews.models import Review
-from reviews.serializers import ReviewSerializer
+from reviews.serializers import ReviewSerializer, PostReviewSerializer
 from replies.models import Reply
 from replies.serializers import ReplySerializer
 from . import serializers
-from .permissions import IsWriterorReadOnly, FeedOrReviewOwnerOnly
+from .permissions import IsWriterorReadOnly, FeedOrReviewOwnerOnly, ObjectOwnerOnly
 from .pagination import CustomPagination
 from .filters import FeedFilter
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
 User = get_user_model()
+
+
+@api_view(["GET"])
+@permission_classes([ObjectOwnerOnly])
+@extend_schema(
+    tags=["나의 숨김 피드 리스트"],
+    description="나의 숨김 피드 리스트",
+    responses=serializers.GetFeedSerializer,
+)
+def my_secret_feed(request):
+    queryset = (
+        Feed.objects.annotate(
+            nickname=F("writer__nickname"),
+            profile=F("writer__profileImg"),
+            kind=F("category__kind"),
+            likes_count=Count("like_users"),
+        )
+        .select_related("writer", "category")
+        .only("writer", "category", "like_users", "title", "content", "is_secret")
+        .prefetch_related(
+            Prefetch(
+                "reviews",
+                queryset=Review.objects.annotate(
+                    nickname=F("writer__nickname"),
+                    profile=F("writer__profileImg"),
+                ),
+                to_attr="reviews_review",
+            ),
+            "like_users",
+        )
+        .filter(is_secret=True, writer=request.user)
+    )
+    return Response(serializers.GetFeedSerializer(queryset, many=True).data)
 
 
 class FeedViewSet(viewsets.ModelViewSet):
@@ -46,6 +79,7 @@ class FeedViewSet(viewsets.ModelViewSet):
             ),
             "like_users",
         )
+        .filter(is_secret=False)
     )
     filterset_class = FeedFilter
     pagination_class = CustomPagination
@@ -62,13 +96,15 @@ class FeedViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["retrieve", "delete", "partial_update", "update"]:
             return serializers.FeedDetailSerializer
+        elif self.action in ["list"]:
+            return serializers.GetFeedSerializer
         else:
-            return serializers.FeedSerializer
+            return serializers.PostFeedSerializer
 
     @extend_schema(
-        tags=["피드 리스트"],
-        description="피드 리스트",
-        responses=serializers.FeedSerializer,
+        tags=["공개된 피드 리스트"],
+        description="공개된 피드 리스트",
+        responses=serializers.GetFeedSerializer,
     )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -84,7 +120,7 @@ class FeedViewSet(viewsets.ModelViewSet):
     @extend_schema(
         tags=["피드 리스트"],
         description="피드 저장",
-        responses=serializers.FeedSerializer,
+        responses=serializers.PostFeedSerializer,
         examples=[
             OpenApiExample(
                 response_only=True,
@@ -99,18 +135,18 @@ class FeedViewSet(viewsets.ModelViewSet):
             ),
         ],
     )
-    def create(self, request):
+    def create(self, request, **kwargs):
         category_val = request.data.get("category")
         category = Category.objects.get(kind=category_val)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         feed_data = serializer.save(writer=request.user, category=category)
-        return Response(serializers.FeedSerializer(feed_data).data)
+        return Response(serializers.PostFeedSerializer(feed_data).data)
 
     @extend_schema(
         tags=["피드 자세히 보기"],
         description="피드 자세히 보기",
-        responses=serializers.FeedSerializer,
+        responses=serializers.GetFeedSerializer,
     )
     def retrieve(self, request, *args, **kwargs):
         feed = self.get_object()
@@ -205,14 +241,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         feed = self.get_feed_object()
-        serializer = ReviewSerializer(data=request.data)
+        serializer = PostReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        print(serializer.data)
         if not feed.reviews.filter(writer=request.user).exists():
             review_data = serializer.save(
                 writer=request.user,
                 feed=feed,
             )
-            return Response(ReviewSerializer(review_data).data)
+            return Response(PostReviewSerializer(review_data).data)
         else:
             raise ParseError("이미 리뷰를 작성했습니다.")
 

@@ -8,7 +8,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ParseError, NotFound, MethodNotAllowed
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, RefreshToken
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 from feeds.models import Feed
 from . import permissions
@@ -89,7 +89,7 @@ class UserViewSet(viewsets.ModelViewSet):
         responses=serializers.UserSerializer,
     )
     def destroy(self, request, *args, **kwargs):
-        return redirect("http://127.0.0.1:8000/api/v1/users/logout")
+        return redirect("http://27.96.134.191/api/v1/users/logout")
 
     @extend_schema(
         tags=["로그아웃"],
@@ -100,6 +100,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def logout(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             res = Response({"message": "로그아웃 되었습니다."}, status=status.HTTP_200_OK)
+            refresh_token = request.COOKIES.get("refresh_token")
+            token = RefreshToken(refresh_token)
+            token.blacklist()
             res.delete_cookie("access")
             res.delete_cookie("refresh")
             logout(request)
