@@ -82,8 +82,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     description = models.TextField(null=True, blank=True)
     objects = UserManager()
 
-    USERNAME_FIELD = "email"  # 로그인에 사용되는 필드입니당
+    USERNAME_FIELD = "email"  # 이메일 로그인
     REQUIRED_FIELDS = ["nickname", "name", "gender"]  # 어드민유저 만들때
+
+    LOGIN_EMAIL = "email"
+    LOGIN_GOOGLE = "google"
+    LOGIN_CHOICES = (
+        (LOGIN_EMAIL, "email"),
+        (LOGIN_GOOGLE, "google"),
+    )
+
+    login_method = models.CharField(
+        max_length=8, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
+    )
 
     def __str__(self):
         return self.email
