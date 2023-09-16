@@ -13,6 +13,8 @@ urlpatterns = [
     path("api/v1/", include("users.urls")),
     path("api/v1/", include("feeds.urls")),
     path("api/v1/", include("categories.urls")),
+    path("api/v1/users/", include("dj_rest_auth.urls")),
+    path("api/v1/users/", include("allauth.urls")),
 ]
 
 if settings.DEBUG:
