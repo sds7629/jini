@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.contrib.auth.hashers import check_password
 from django.db.models import Prefetch
+from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParamete
 from feeds.models import Feed
 from . import permissions
 from . import serializers
+
 
 User = get_user_model()
 
