@@ -52,6 +52,15 @@ THIRDPARTY_APPS = [
     "replies.apps.RepliesConfig",
     "common.apps.CommonConfig",
     "categories.apps.CategoriesConfig",
+    "rest_framework.authtoken",
+    ## dj-rest-auth
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    ## all-auth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 DEFAULT_APPS = [
@@ -61,6 +70,7 @@ DEFAULT_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 INSTALLED_APPS = THIRDPARTY_APPS + DEFAULT_APPS
@@ -75,6 +85,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 REST_FRAMEWORK = {
@@ -143,6 +154,21 @@ INTERNAL_IPS = [
 ## Users
 
 AUTH_USER_MODEL = "users.User"
+
+SITE_ID = 1
+
+REST_USE_JWT = True
+
+## GOOGLE AUTH
+GOOGLE_OAUTH2_CLIENT_ID = get_env_variable("GOOGLE_OAUTH2_CLIENT_ID")
+GOOGLE_OAUTH2_CLIENT_SECRET = get_env_variable("GOOGLE_OAUTH2_CLIENT_SECRET")
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
+ACCOUNT_USERNAME_REQUIRED = False  # username 필드 사용 x
+ACCOUNT_EMAIL_REQUIRED = True  # email 필드 사용 o
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
