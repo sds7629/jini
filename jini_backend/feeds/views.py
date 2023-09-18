@@ -59,8 +59,8 @@ def my_secret_feed(request):
 
 
 @extend_schema(
-    tags=["나의 숨김 피드 리스트 수정 및 삭제"],
-    description="나의 숨김 피드 리스트 수정 및 삭제",
+    tags=["나의 숨김 피드 Detail 수정 및 삭제"],
+    description="나의 숨김 피드 Detail 리스트 수정 및 삭제",
     responses=serializers.GetFeedSerializer,
 )
 @api_view(["GET", "DELETE", "PUT"])
