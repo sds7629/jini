@@ -62,6 +62,7 @@ def google_callback(request):
     user_profile = {
         "email": user_info.get("email", ""),
         "name": user_info.get("name", ""),
+        "gender": user_info.get("gender", ""),
         "nickname": user_info.get("nickname", ""),
         "profileImge": user_info.get("picture", None),
     }
@@ -84,12 +85,12 @@ def google_callback(request):
         user.set_unusable_password()
         user.save()
     token = TokenObtainPairSerializer.get_token(user)
-    serializer = serializers.LoginSerializer
     refresh_token = str(token)
     access_token = str(token.access_token)
+    print(user, refresh_token, access_token)
     res = Response(
         {
-            "user": serializer.data,
+            "user": user,
             "message": "로그인 성공",
             "token": {
                 "access": access_token,
@@ -98,11 +99,12 @@ def google_callback(request):
         },
         status=status.HTTP_200_OK,
     )
+
     res.set_cookie("access", access_token, httponly=True)
     res.set_cookie("refresh", refresh_token, httponly=True)
     login(
         request,
         user,
-        backend="django.contrib.auth.ModelBackend",
+        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
     )
     return Response({"message": "구글 로그인이 되었습니다."}, status=status.HTTP_200_OK)

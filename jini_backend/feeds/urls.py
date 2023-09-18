@@ -23,9 +23,10 @@ app_name = "feeds"
 
 
 urlpatterns = [
+    path("feeds/<int:feed_pk>/likes/", views.likes),
+    path("updel_reply/<int:reply_pk>/", views.updel_reply),
+    path("feeds/mysecret/", views.my_secret_feed),
+    path("feeds/mysecret/<int:pk>/", views.my_secret_del),
     path("", include(router.urls)),
     path("", include(review_router.urls)),
-    path("feeds/<int:feed_pk>/likes", views.likes),
-    path("updel_reply/<int:reply_pk>/", views.updel_reply),
-    path("feeds/mysecret", views.my_secret_feed),
 ]

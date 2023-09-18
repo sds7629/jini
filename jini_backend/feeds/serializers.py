@@ -20,6 +20,7 @@ class GetFeedSerializer(serializers.ModelSerializer):
     writer = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Feed
@@ -33,6 +34,9 @@ class GetFeedSerializer(serializers.ModelSerializer):
 
     def get_review_count(self, obj):
         return len(obj.reviews_review)
+
+    def get_likes_count(self, obj):
+        return obj.likes_count
 
 
 class FeedDetailSerializer(serializers.ModelSerializer):

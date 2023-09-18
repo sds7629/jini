@@ -25,13 +25,13 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParamete
 User = get_user_model()
 
 
-@api_view(["GET"])
-@permission_classes([ObjectOwnerOnly])
 @extend_schema(
-    tags=["나의 숨김 피드 리스트"],
-    description="나의 숨김 피드 리스트",
+    tags=["숨김 피드 리스트"],
+    description="숨김 피드 리스트",
     responses=serializers.GetFeedSerializer,
 )
+@api_view(["GET"])
+@permission_classes([ObjectOwnerOnly])
 def my_secret_feed(request):
     queryset = (
         Feed.objects.annotate(
@@ -56,6 +56,52 @@ def my_secret_feed(request):
         .filter(is_secret=True, writer=request.user)
     )
     return Response(serializers.GetFeedSerializer(queryset, many=True).data)
+
+
+@extend_schema(
+    tags=["나의 숨김 피드 리스트 수정 및 삭제"],
+    description="나의 숨김 피드 리스트 수정 및 삭제",
+    responses=serializers.GetFeedSerializer,
+)
+@api_view(["GET", "DELETE", "PUT"])
+def my_secret_del(request, pk):
+    queryset = (
+        Feed.objects.annotate(
+            nickname=F("writer__nickname"),
+            profile=F("writer__profileImg"),
+            kind=F("category__kind"),
+            likes_count=Count("like_users"),
+        )
+        .select_related("writer", "category")
+        .only("writer", "category", "like_users", "title", "content", "is_secret")
+        .prefetch_related(
+            Prefetch(
+                "reviews",
+                queryset=Review.objects.annotate(
+                    nickname=F("writer__nickname"),
+                    profile=F("writer__profileImg"),
+                ),
+                to_attr="reviews_review",
+            ),
+            "like_users",
+        )
+        .filter(is_secret=True, writer=request.user, pk=pk)
+    )
+    if request.method == "GET":
+        serializer = serializers.GetFeedSerializer(queryset, many=True)
+        return Response(serializer.data)
+    elif request.method == "DELETE":
+        queryset.first().delete()
+        return Response({"message": "삭제완료"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        serializer = serializers.PostFeedSerializer(
+            queryset.first(),
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        data = serializer.save()
+        return Response(serializers.GetFeedSerializer(data).data)
 
 
 class FeedViewSet(viewsets.ModelViewSet):
