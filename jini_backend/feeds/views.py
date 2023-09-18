@@ -20,7 +20,7 @@ from .permissions import IsWriterorReadOnly, FeedOrReviewOwnerOnly, ObjectOwnerO
 from .pagination import CustomPagination
 from .filters import FeedFilter
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
-
+from django_filters.filters import OrderingFilter
 
 User = get_user_model()
 
@@ -126,10 +126,10 @@ class FeedViewSet(viewsets.ModelViewSet):
             "like_users",
         )
         .filter(is_secret=False)
-    )
+    ).order_by("-created_at")
+
     filterset_class = FeedFilter
     pagination_class = CustomPagination
-    order_by = ["-created_at"]
 
     def get_permissions(self):
         permission_classes = []

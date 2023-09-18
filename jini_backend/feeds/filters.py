@@ -14,6 +14,7 @@ class FeedFilter(FilterSet):
 
     class Meta:
         model = Feed
+
         fields = (
             "writer",
             "category",
