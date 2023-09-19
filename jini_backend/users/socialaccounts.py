@@ -8,6 +8,7 @@ from allauth.socialaccount.providers.google import views as google_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.http import JsonResponse
 import requests
+import random
 from rest_framework import status
 from json.decoder import JSONDecodeError
 from rest_framework.decorators import api_view
@@ -73,7 +74,7 @@ def google_callback(request):
         user = None
     if user is not None:
         if user.login_method != User.LOGIN_GOOGLE:
-            raise BadRequest("잘못된 요청입니다.")
+            ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
         user = User(
             email=user_profile["email"],
@@ -87,10 +88,10 @@ def google_callback(request):
     token = TokenObtainPairSerializer.get_token(user)
     refresh_token = str(token)
     access_token = str(token.access_token)
-    print(user, refresh_token, access_token)
+
     res = Response(
         {
-            "user": user,
+            "user": serializers.ListUserSerializer(user).data,
             "message": "로그인 성공",
             "token": {
                 "access": access_token,
@@ -107,4 +108,154 @@ def google_callback(request):
         user,
         backend="rest_framework_simplejwt.authentication.JWTAuthentication",
     )
-    return Response({"message": "구글 로그인이 되었습니다."}, status=status.HTTP_200_OK)
+    return res
+
+
+KAKAO_TOKEN_API = "https://kauth.kakao.com/oauth/token"
+KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
+KAKAO_CALLBACK_URI = "http://127.0.0.1:8000/api/v1/users/auth/kakao/callback"
+
+
+@api_view(["GET"])
+def kakao_login(request):
+    kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+    redirect_uri = "http://127.0.0.1:8000/api/v1/users/auth/kakao/callback"
+    client_id = settings.KAKAO_KEY
+
+    return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
+
+
+@api_view(["GET"])
+def kakao_callback(request):
+    code = request.GET["code"]
+
+    if not code:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    data = {
+        "grant_type": "authorization_code",
+        "client_id": settings.KAKAO_KEY,
+        "redirect_uri": "http://127.0.0.1:8000/api/v1/users/auth/kakao/callback",
+        "code": code,
+    }
+
+    token = requests.post("https://kauth.kakao.com/oauth/token", data=data).json()
+
+    access_token = token["access_token"]
+    if not access_token:
+        return Response(
+            {"message": "토큰을 받아오지 못했습니다."}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    headers = {
+        "Authorization": f"Bearer ${access_token}",
+        "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+    }
+    user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
+    print(user_profile)
+    # data = {"access_token": access_token, "code": code}
+    kakao_account = user_profile.get("kakao_account")
+
+    nickname = kakao_account.get("profile")["nickname"]
+    email = kakao_account.get("email")
+    profileImg = kakao_account.get("profile")["profile_image_url"]
+    gender = kakao_account.get("gender", "")
+    name = kakao_account.get("name", "")
+
+    print(email)
+    if email is None:
+        ValidationError("카카오 계정(이메일) 제공 동의에 체크해 주세요")
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        user = None
+
+    if user is not None:
+        if user.login_method != User.LOGIN_KAKAO:
+            ValidationError(f"{user.login_method}로 로그인 해주세요")
+    else:
+        # if User.objects.get(nickname=nickname):
+        #     rand_num = random.randint(0, 99999)
+        #     nickname = f"{nickname}{rand_num}"
+        user = User(
+            email=email,
+            nickname=nickname,
+            profileImg=profileImg,
+            gender=gender,
+            name=name,
+            login_method=User.LOGIN_KAKAO,
+        )
+        user.set_unusable_password()
+        user.save()
+
+    token = TokenObtainPairSerializer.get_token(user)
+    refresh_token = str(token)
+    access_token = str(token.access_token)
+
+    res = Response(
+        {
+            "user": serializers.ListUserSerializer(user).data,
+            "message": "로그인 성공",
+            "token": {
+                "access": access_token,
+                "refresh": refresh_token,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
+    res.set_cookie("access", access_token, httponly=True)
+    res.set_cookie("refresh", refresh_token, httponly=True)
+    login(
+        request,
+        user,
+        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+    return res
+
+
+@api_view(["GET"])
+def naver_login(request):
+    client_id = settings.NAVER_CLIENT_ID
+    redierct_uri = "http://127.0.0.1:8000/api/v1/users/auth/naver/callback"
+    return redirect(
+        f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={client_id}&state=STATE_STRING&redirect_uri={redierct_uri}"
+    )
+
+
+@api_view(["GET"])
+def naver_callback(request):
+    client_id = settings.NAVER_CLIENT_ID
+    client_secret = settings.NAVER_CLIENT_SECRET
+    code = request.GET.get("code")
+    uri = "http://127.0.0.1:8000/api/v1/users/auth/naver/callback"
+    state_string = request.GET.get("state")
+
+    token_req = requests.get(
+        f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={client_id}&client_secret={client_secret}&code={code}&state={state_string}"
+    )
+    token_res_json = token_req.json()
+
+    access_token = token_res_json.get("access_token")
+
+    profile_request = requests.get(
+        "https://openapi.naver.com/v1/nid/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    profile_json = profile_request.json()
+
+    res = profile_json.get("response")
+
+    if res["gender"] == "M":
+        gender = "male"
+    elif res["gender"] == "F":
+        gender = "female"
+
+    data = {
+        "email": res["email"],
+        "name": res["name"],
+        "gender": gender,
+        "profileImg": res["profile_image"],
+    }
+    pass

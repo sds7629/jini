@@ -87,9 +87,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     LOGIN_EMAIL = "email"
     LOGIN_GOOGLE = "google"
+    LOGIN_KAKAO = "kakao"
+    LOGIN_NAVER = "naver"
     LOGIN_CHOICES = (
         (LOGIN_EMAIL, "email"),
         (LOGIN_GOOGLE, "google"),
+        (LOGIN_KAKAO, "kakao"),
+        (LOGIN_NAVER, "naver"),
     )
 
     login_method = models.CharField(

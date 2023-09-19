@@ -36,6 +36,9 @@ def get_env_variable(var_name):
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env_variable("SECRET_KEY")
 
+KAKAO_KEY = get_env_variable("KAKAO_OAUTH2_REST_API_KEY")
+NAVER_CLIENT_ID = get_env_variable("NAVER_OAUTH2_CLIENT_ID")
+NAVER_CLIENT_SECRET = get_env_variable("NAVER_OAUTH2_CLIENT_SECRET")
 
 # Application definition
 THIRDPARTY_APPS = [
@@ -61,6 +64,8 @@ THIRDPARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.kakao",
+    "allauth.socialaccount.providers.naver",
 ]
 
 DEFAULT_APPS = [

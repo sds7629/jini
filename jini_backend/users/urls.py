@@ -12,6 +12,10 @@ urlpatterns = [
     path("users/my_info/", views.get_info),
     path("users/auth/google/login/", socialaccounts.google_login),
     path("users/auth/google/callback/", socialaccounts.google_callback),
+    path("users/auth/kakao/login/", socialaccounts.kakao_login),
+    path("users/auth/kakao/callback/", socialaccounts.kakao_callback),
+    path("users/auth/naver/login/", socialaccounts.naver_login),
+    path("users/auth/naver/callback/", socialaccounts.naver_callback),
     path("", include(router.urls)),
     # path("users/<int:pk>/signout", views.signout),
 ]
