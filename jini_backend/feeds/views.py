@@ -289,7 +289,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
         feed = self.get_feed_object()
         serializer = PostReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.data)
         if not feed.reviews.filter(writer=request.user).exists():
             review_data = serializer.save(
                 writer=request.user,
