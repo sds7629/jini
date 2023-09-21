@@ -73,8 +73,6 @@ def google_callback(request):
     except User.DoesNotExist:
         user = None
     if user is not None:
-        print(user.login_method)
-        print(User.LOGIN_GOOGLE)
         if user.login_method != User.LOGIN_GOOGLE:
             raise ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
@@ -120,7 +118,9 @@ KAKAO_CALLBACK_URI = "http://127.0.0.1:8000/api/v1/users/auth/kakao/callback"
 
 @api_view(["GET"])
 def kakao_login(request):
-    kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+    kakao_api = (
+        "https://kauth.kakao.com/oauth/authorize?response_type=code&scope=account_email"
+    )
     redirect_uri = "http://127.0.0.1:8000/api/v1/users/auth/kakao/callback"
     client_id = settings.KAKAO_KEY
 
