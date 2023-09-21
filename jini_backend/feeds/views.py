@@ -64,6 +64,7 @@ def my_secret_feed(request):
     responses=serializers.GetFeedSerializer,
 )
 @api_view(["GET", "DELETE", "PUT"])
+@permission_classes([ObjectOwnerOnly])
 def my_secret_del(request, pk):
     queryset = (
         Feed.objects.annotate(

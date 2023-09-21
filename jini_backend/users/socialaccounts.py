@@ -73,6 +73,8 @@ def google_callback(request):
     except User.DoesNotExist:
         user = None
     if user is not None:
+        print(user.login_method)
+        print(User.LOGIN_GOOGLE)
         if user.login_method != User.LOGIN_GOOGLE:
             ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
@@ -162,7 +164,6 @@ def kakao_callback(request):
     gender = kakao_account.get("gender", "")
     name = kakao_account.get("name", "")
 
-    print(email)
     if email is None:
         ValidationError("카카오 계정(이메일) 제공 동의에 체크해 주세요")
 
@@ -255,7 +256,60 @@ def naver_callback(request):
     data = {
         "email": res["email"],
         "name": res["name"],
+        "nickname": res["nickname"],
         "gender": gender,
         "profileImg": res["profile_image"],
     }
-    pass
+
+    if data["email"] is None:
+        ValidationError("네이버 계정(이메일) 제공 동의에 체크해 주세요")
+
+    try:
+        user = User.objects.get(email=data["email"])
+    except User.DoesNotExist:
+        user = None
+
+    if user is not None:
+        if user.login_method != User.LOGIN_NAVER:
+            ValidationError(f"{user.login_method}로 로그인 해주세요")
+    else:
+        if User.objects.filter(nickname=data["nickname"]).exists():
+            rand_num = random.randint(0, 99999)
+            basenickname = data["nickname"]
+            nickname = f"{basenickname}{rand_num}"
+        else:
+            nickname = data["nickname"]
+        user = User(
+            email=data["email"],
+            nickname=nickname,
+            profileImg=data["profileImg"],
+            gender=data["gender"],
+            name=data["name"],
+            login_method=User.LOGIN_NAVER,
+        )
+        user.set_unusable_password()
+        user.save()
+
+    token = TokenObtainPairSerializer.get_token(user)
+    refresh_token = str(token)
+    access_token = str(token.access_token)
+
+    res = Response(
+        {
+            "user": serializers.ListUserSerializer(user).data,
+            "message": "로그인 성공",
+            "token": {
+                "access": access_token,
+                "refresh": refresh_token,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
+    res.set_cookie("access", access_token, httponly=True)
+    res.set_cookie("refresh", refresh_token, httponly=True)
+    login(
+        request,
+        user,
+        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+    return res
