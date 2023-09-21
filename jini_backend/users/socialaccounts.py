@@ -76,7 +76,7 @@ def google_callback(request):
         print(user.login_method)
         print(User.LOGIN_GOOGLE)
         if user.login_method != User.LOGIN_GOOGLE:
-            ValidationError(f"{user.login_method}로 로그인 해주세요")
+            raise ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
         user = User(
             email=user_profile["email"],
@@ -154,7 +154,7 @@ def kakao_callback(request):
         "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
     }
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
-    print(user_profile)
+
     # data = {"access_token": access_token, "code": code}
     kakao_account = user_profile.get("kakao_account")
 
@@ -174,7 +174,7 @@ def kakao_callback(request):
 
     if user is not None:
         if user.login_method != User.LOGIN_KAKAO:
-            ValidationError(f"{user.login_method}로 로그인 해주세요")
+            raise ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
         # if User.objects.get(nickname=nickname):
         #     rand_num = random.randint(0, 99999)
@@ -262,7 +262,7 @@ def naver_callback(request):
     }
 
     if data["email"] is None:
-        ValidationError("네이버 계정(이메일) 제공 동의에 체크해 주세요")
+        raise ValidationError("네이버 계정(이메일) 제공 동의에 체크해 주세요")
 
     try:
         user = User.objects.get(email=data["email"])
@@ -271,7 +271,7 @@ def naver_callback(request):
 
     if user is not None:
         if user.login_method != User.LOGIN_NAVER:
-            ValidationError(f"{user.login_method}로 로그인 해주세요")
+            raise ValidationError(f"{user.login_method}로 로그인 해주세요")
     else:
         if User.objects.filter(nickname=data["nickname"]).exists():
             rand_num = random.randint(0, 99999)
