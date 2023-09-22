@@ -16,6 +16,8 @@ urlpatterns = [
     path("users/auth/kakao/callback/", socialaccounts.kakao_callback),
     path("users/auth/naver/login/", socialaccounts.naver_login),
     path("users/auth/naver/callback/", socialaccounts.naver_callback),
+    path("users/val_email/", views.validate_email),
+    path("users/val_nickname/", views.validate_nickname),
     path("", include(router.urls)),
     # path("users/<int:pk>/signout", views.signout),
 ]

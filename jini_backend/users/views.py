@@ -192,3 +192,29 @@ def get_info(request):
         serializer.is_valid(raise_exception=True)
         update_user = serializer.save()
         return Response(serializers.ListUserSerializer(update_user).data)
+
+
+@extend_schema(
+    tags=["이메일 검증"],
+    description="이메일 검증",
+)
+@api_view(["POST"])
+def validate_email(request):
+    email_data = request.data.get("email")
+    if User.objects.filter(email=email_data).exists():
+        return Response({"message": "이미 가입된 이메일입니다."})
+    else:
+        return Response({"message": "사용 가능한 이메일입니다."})
+
+
+@extend_schema(
+    tags=["닉네임 검증"],
+    description="닉네임 검증",
+)
+@api_view(["POST"])
+def validate_nickname(request):
+    nickname_data = request.data.get("nickname")
+    if User.objects.filter(nickname=nickname_data).exists():
+        return Response({"message": "이미 사용중인 닉네임입니다."})
+    else:
+        return Response({"message": "사용 가능한 닉네임입니다."})
