@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.contrib.auth.hashers import check_password
 from django.db.models import Prefetch
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
+from django.core.exceptions import ValidationError
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -220,3 +222,24 @@ def validate_nickname(request):
         )
     else:
         return Response({"message": "사용 가능한 닉네임입니다."}, status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    tags=["패스워드 변경"],
+    description="닉네임 검증",
+)
+@api_view(["POST"])
+def change_password(request):
+    user = request.user
+    current_password = request.data.get("current_password")
+    if not check_password(current_password, user.password):
+        raise ValidationError({"message": "현재 패스워드가 일치하지 않습니다."})
+    new_password = request.data.get("password_1")
+    confirm_new_password = request.data.get("password_2")
+    if new_password == confirm_new_password:
+        user.set_password(new_password)
+        user.save()
+        # return redirect("http://www.jinii.shop")
+        return Response({"message": "ok"})
+    else:
+        raise ValidationError({"message": "새로운 비밀번호가 일치하지 않습니다."})

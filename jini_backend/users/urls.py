@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
+from django.contrib.auth import views as auth_views
 from . import views
 from . import socialaccounts
 
@@ -18,6 +19,7 @@ urlpatterns = [
     path("users/auth/naver/callback/", socialaccounts.naver_callback),
     path("users/val_email/", views.validate_email),
     path("users/val_nickname/", views.validate_nickname),
+    path("users/change-password", views.change_password),
     path("", include(router.urls)),
     # path("users/<int:pk>/signout", views.signout),
 ]
