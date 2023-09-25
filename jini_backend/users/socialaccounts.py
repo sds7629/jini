@@ -25,7 +25,7 @@ def google_login(request):
     # fmt:off
     scope = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
     # fmt: on
-    redirect_uri = "http://27.96.134.191/api/v1/users/auth/google/callback"
+    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/google/callback"
     google_auth_api = "https://accounts.google.com/o/oauth2/v2/auth"
 
     response = redirect(
@@ -42,7 +42,7 @@ def google_callback(request):
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
     state = "random_string"
-    redirection_uri = "http://27.96.134.191/api/v1/users/auth/google/callback"
+    redirection_uri = "http://www.jinii.shop/api/v1/users/auth/google/callback"
 
     google_token_api = f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type={grant_type}&redirect_uri={redirection_uri}&state={state}"
 
@@ -113,7 +113,7 @@ def google_callback(request):
 
 KAKAO_TOKEN_API = "https://kauth.kakao.com/oauth/token"
 KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
-KAKAO_CALLBACK_URI = "http://27.96.134.191/api/v1/users/auth/kakao/callback"
+KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 
 
 @api_view(["GET"])
@@ -121,7 +121,7 @@ def kakao_login(request):
     kakao_api = (
         "https://kauth.kakao.com/oauth/authorize?response_type=code&scope=account_email"
     )
-    redirect_uri = "http://27.96.134.191/api/v1/users/auth/kakao/callback"
+    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
     client_id = settings.KAKAO_KEY
 
     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
@@ -137,7 +137,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://27.96.134.191/api/v1/users/auth/kakao/callback",
+        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
         "code": code,
     }
 
@@ -218,7 +218,7 @@ def kakao_callback(request):
 @api_view(["GET"])
 def naver_login(request):
     client_id = settings.NAVER_CLIENT_ID
-    redierct_uri = "http://27.96.134.191/api/v1/users/auth/naver/callback"
+    redierct_uri = "http://www.jinii.shop/api/v1/users/auth/naver/callback"
     return redirect(
         f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={client_id}&state=STATE_STRING&redirect_uri={redierct_uri}"
     )
@@ -229,7 +229,7 @@ def naver_callback(request):
     client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_CLIENT_SECRET
     code = request.GET.get("code")
-    uri = "http://27.96.134.191/api/v1/users/auth/naver/callback"
+    uri = "http://www.jinii.shop/api/v1/users/auth/naver/callback"
     state_string = request.GET.get("state")
 
     token_req = requests.get(
