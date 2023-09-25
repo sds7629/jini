@@ -239,7 +239,7 @@ def change_password(request):
     if new_password == confirm_new_password:
         user.set_password(new_password)
         user.save()
-        # return redirect("http://www.jinii.shop")
-        return Response({"message": "ok"})
+        return redirect("http://www.jinii.shop")
+        # return Response({"message": "ok"})
     else:
         raise ValidationError({"message": "새로운 비밀번호가 일치하지 않습니다."})
