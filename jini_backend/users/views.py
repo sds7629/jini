@@ -202,9 +202,9 @@ def get_info(request):
 def validate_email(request):
     email_data = request.data.get("email")
     if User.objects.filter(email=email_data).exists():
-        return Response({"message": "이미 가입된 이메일입니다."})
+        return Response({"message": "이미 가입된 이메일입니다."}, status=status.HTTP_403_FORBIDDEN)
     else:
-        return Response({"message": "사용 가능한 이메일입니다."})
+        return Response({"message": "사용 가능한 이메일입니다."}, status=status.HTTP_200_OK)
 
 
 @extend_schema(
@@ -215,6 +215,8 @@ def validate_email(request):
 def validate_nickname(request):
     nickname_data = request.data.get("nickname")
     if User.objects.filter(nickname=nickname_data).exists():
-        return Response({"message": "이미 사용중인 닉네임입니다."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "이미 사용중인 닉네임입니다."}, status=status.HTTP_403_FORBIDDEN
+        )
     else:
-        return Response({"message": "사용 가능한 닉네임입니다."}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"message": "사용 가능한 닉네임입니다."}, status=status.HTTP_200_OK)
