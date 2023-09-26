@@ -154,7 +154,7 @@ def kakao_callback(request):
         "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
     }
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
-
+    print(user_profile)
     # data = {"access_token": access_token, "code": code}
     kakao_account = user_profile.get("kakao_account")
 
