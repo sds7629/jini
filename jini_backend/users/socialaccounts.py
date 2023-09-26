@@ -118,9 +118,7 @@ KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 
 @api_view(["GET"])
 def kakao_login(request):
-    kakao_api = (
-        "https://kauth.kakao.com/oauth/authorize?response_type=code&scope=account_email"
-    )
+    kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
     redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
     client_id = settings.KAKAO_KEY
 
