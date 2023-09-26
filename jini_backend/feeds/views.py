@@ -95,7 +95,7 @@ def my_secret_del(request, pk):
         return Response(serializer.data)
     elif request.method == "DELETE":
         queryset.first().delete()
-        return Response({"message": "삭제완료"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "삭제완료"}, status=status.HTTP_204_NO_CONTENT)
     else:
         serializer = serializers.PostFeedSerializer(
             queryset.first(),
@@ -167,7 +167,7 @@ class FeedViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=["피드 리스트"],
+        tags=["공개된 피드 리스트"],
         description="피드 저장",
         responses=serializers.PostFeedSerializer,
         examples=[
@@ -352,7 +352,7 @@ def updel_reply(request, reply_pk):
     if request.method == "DELETE":
         reply = Reply.objects.get(pk=reply_pk)
         reply.delete()
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["POST"])
