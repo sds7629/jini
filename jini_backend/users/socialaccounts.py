@@ -192,25 +192,31 @@ def kakao_callback(request):
     refresh_token = str(token)
     access_token = str(token.access_token)
 
-    res = Response(
-        {
-            "user": serializers.ListUserSerializer(user).data,
-            "message": "로그인 성공",
-            "token": {
-                "access": access_token,
-                "refresh": refresh_token,
-            },
-        },
-        status=status.HTTP_200_OK,
-    )
+    res = redirect("http://localhost:3000")
     res.set_cookie("access", access_token, httponly=True)
     res.set_cookie("refresh", refresh_token, httponly=True)
-    login(
-        request,
-        user,
-        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
-    return redirect("http://localhost:3000")
+
+    return res
+
+    # res = Response(
+    #     {
+    #         "user": serializers.ListUserSerializer(user).data,
+    #         "message": "로그인 성공",
+    #         "token": {
+    #             "access": access_token,
+    #             "refresh": refresh_token,
+    #         },
+    #     },
+    #     status=status.HTTP_200_OK,
+    # )
+    # res.set_cookie("access", access_token, httponly=True)
+    # res.set_cookie("refresh", refresh_token, httponly=True)
+    # login(
+    #     request,
+    #     user,
+    #     backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+    # )
+    # return res
 
 
 @api_view(["GET"])
