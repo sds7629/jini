@@ -192,7 +192,15 @@ def kakao_callback(request):
     refresh_token = str(token)
     access_token = str(token.access_token)
 
-    res = redirect("http://localhost:3000")
+    # res = redirect("http://localhost:3000")
+    res = Response(
+        {
+            "token": {
+                "access": access_token,
+                "refresh": refresh_token,
+            }
+        }
+    )
     res.set_cookie("access", access_token, httponly=True)
     res.set_cookie("refresh", refresh_token, httponly=True)
 
