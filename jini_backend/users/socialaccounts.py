@@ -135,7 +135,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
+        "redirect_uri": "http://localhost:3000/oauth",
         "code": code,
     }
 
