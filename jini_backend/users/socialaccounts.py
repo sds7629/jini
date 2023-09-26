@@ -135,7 +135,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://localhost:3000/oauth",
+        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
         "code": code,
     }
 
@@ -210,7 +210,7 @@ def kakao_callback(request):
         user,
         backend="rest_framework_simplejwt.authentication.JWTAuthentication",
     )
-    return res
+    return redirect("http://localhost:3000")
 
 
 @api_view(["GET"])
