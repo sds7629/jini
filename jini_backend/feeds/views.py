@@ -54,6 +54,7 @@ def my_secret_feed(request):
             "like_users",
         )
         .filter(is_secret=True, writer=request.user)
+        .order_by("-created_at")
     )
     return Response(serializers.GetFeedSerializer(queryset, many=True).data)
 
@@ -87,6 +88,7 @@ def my_secret_del(request, pk):
             "like_users",
         )
         .filter(is_secret=True, writer=request.user, pk=pk)
+        .order_by("-created_at")
     )
     if request.method == "GET":
         serializer = serializers.GetFeedSerializer(queryset, many=True)
