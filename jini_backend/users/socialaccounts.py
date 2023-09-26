@@ -196,6 +196,12 @@ def kakao_callback(request):
     res.set_cookie("access", access_token, httponly=True)
     res.set_cookie("refresh", refresh_token, httponly=True)
 
+    login(
+        request,
+        user,
+        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+
     return res
 
     # res = Response(
