@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenRefreshView
 from django.contrib.auth import views as auth_views
 from . import views
 from . import socialaccounts
@@ -20,6 +21,7 @@ urlpatterns = [
     path("users/val_email/", views.validate_email),
     path("users/val_nickname/", views.validate_nickname),
     path("users/change-password", views.change_password),
+    path("users/Refresh/", TokenRefreshView.as_view()),
     path("", include(router.urls)),
     # path("users/<int:pk>/signout", views.signout),
 ]

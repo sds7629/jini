@@ -39,8 +39,9 @@ class UserViewSet(viewsets.ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     @extend_schema(
-        tags=[""],
-        description="",
+        tags=["User"],
+        description="User",
+        summary="유저 pk로 조회하기",
         responses=serializers.UserSerializer,
     )
     def retrieve(self, request, *args, **kwargs):
@@ -51,8 +52,9 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=["회원 가입"],
+        tags=["User"],
         description="회원 가입",
+        summary="회원 가입",
         responses=serializers.CreateUserSerializer,
         examples=[
             OpenApiExample(
@@ -89,14 +91,16 @@ class UserViewSet(viewsets.ModelViewSet):
     @extend_schema(
         tags=["사용안함"],
         description="시용안함",
+        summary="사용안함",
         responses=serializers.UserSerializer,
     )
     def destroy(self, request, *args, **kwargs):
-        return redirect("http://27.96.134.191/api/v1/users/logout")
+        return redirect("http://www.jinii.shop/api/v1/users/logout")
 
     @extend_schema(
-        tags=["로그아웃"],
+        tags=["User"],
         description="로그아웃",
+        summary="로그아웃",
         responses=serializers.UserSerializer,
     )
     @action(detail=False, methods=["delete"], permission_classes=[IsAuthenticated])
@@ -106,14 +110,15 @@ class UserViewSet(viewsets.ModelViewSet):
             refresh_token = request.COOKIES.get("refresh_token")
             token = RefreshToken(refresh_token)
             token.blacklist()
-            res.delete_cookie("access")
-            res.delete_cookie("refresh")
+            res.delete_cookie("access_token")
+            res.delete_cookie("refresh_token")
             logout(request)
             return res
 
     @extend_schema(
-        tags=["로그인"],
+        tags=["User"],
         description="로그인",
+        summary="로그인",
         responses=serializers.UserSerializer,
         examples=[
             OpenApiExample(
@@ -147,18 +152,35 @@ class UserViewSet(viewsets.ModelViewSet):
                     "user": serializer.data,
                     "message": "로그인 성공",
                     "token": {
-                        "access": access_token,
-                        "refresh": refresh_token,
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
                     },
                 },
                 status=status.HTTP_200_OK,
             )
-            res.set_cookie("access", access_token, httponly=True)
-            res.set_cookie("refresh", refresh_token, httponly=True)
+            res.set_cookie("access_token", access_token, httponly=True)
+            res.set_cookie("refresh_token", refresh_token, httponly=True)
             login(request, user)
             return res
         return Response({"user": "없는 유저입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        tags=["User"],
+        description="회원탈퇴",
+        summary="회원탈퇴",
+        responses=serializers.UserSerializer,
+        examples=[
+            OpenApiExample(
+                response_only=True,
+                summary="회원탈퇴",
+                name="Register",
+                value={
+                    "email": "email",
+                    "password": "password",
+                },
+            ),
+        ],
+    )
     @action(
         methods=["post"],
         detail=False,
@@ -173,8 +195,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    tags=["마이인포"],
+    tags=["User"],
     description="마이인포",
+    summary="마이인포",
     responses=serializers.ListUserSerializer,
 )
 @api_view(["GET", "PUT"])
@@ -197,8 +220,19 @@ def get_info(request):
 
 
 @extend_schema(
-    tags=["이메일 검증"],
+    tags=["User"],
     description="이메일 검증",
+    summary="이메일 검증",
+    examples=[
+        OpenApiExample(
+            response_only=True,
+            summary="이메일 중복",
+            name="checker",
+            value={
+                "email": "email",
+            },
+        ),
+    ],
 )
 @api_view(["POST"])
 def validate_email(request):
@@ -210,8 +244,19 @@ def validate_email(request):
 
 
 @extend_schema(
-    tags=["닉네임 검증"],
+    tags=["User"],
     description="닉네임 검증",
+    summary="닉네임 검증",
+    examples=[
+        OpenApiExample(
+            response_only=True,
+            summary="닉네임",
+            name="checker",
+            value={
+                "nickname": "nicname",
+            },
+        ),
+    ],
 )
 @api_view(["POST"])
 def validate_nickname(request):
@@ -225,8 +270,21 @@ def validate_nickname(request):
 
 
 @extend_schema(
-    tags=["패스워드 변경"],
-    description="닉네임 검증",
+    tags=["User"],
+    description="패스워드 변경",
+    summary="패스워드 변경",
+    examples=[
+        OpenApiExample(
+            response_only=True,
+            summary="패스워드",
+            name="checker",
+            value={
+                "current_password": "current_password",
+                "password_1": "password_1",
+                "password_2": "pssword_2",
+            },
+        ),
+    ],
 )
 @api_view(["POST"])
 def change_password(request):

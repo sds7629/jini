@@ -26,7 +26,7 @@ User = get_user_model()
     description="Social Login",
     summary="구글 로그인",
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def google_login(request):
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     # fmt:off
@@ -47,7 +47,7 @@ def google_login(request):
     description="Social Login",
     summary="구글 로그인",
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def google_callback(request):
     code = request.GET.get("code")
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
@@ -157,7 +157,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://localhost:3000/auth",
+        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
         "code": code,
     }
 
@@ -350,14 +350,14 @@ def naver_callback(request):
             "user": serializers.ListUserSerializer(user).data,
             "message": "로그인 성공",
             "token": {
-                "access": access_token,
-                "refresh": refresh_token,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
             },
         },
         status=status.HTTP_200_OK,
     )
-    res.set_cookie("access", access_token, httponly=True)
-    res.set_cookie("refresh", refresh_token, httponly=True)
+    res.set_cookie("access_token", access_token, httponly=True)
+    res.set_cookie("refresh_token", refresh_token, httponly=True)
     login(
         request,
         user,

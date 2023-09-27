@@ -5,8 +5,14 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
 
 
+@extend_schema(
+    tags=["Category"],
+    description="Category",
+    summary="카테고리",
+)
 @api_view(["GET", "POST"])
 @permission_classes([IsAdminUser])
 def CategoryView(request):
@@ -21,6 +27,11 @@ def CategoryView(request):
         return Response(serializers.CategorySerializer(category_val).data)
 
 
+@extend_schema(
+    tags=["Category"],
+    description="Category",
+    summary="카테고리",
+)
 @api_view(["PUT", "DELETE"])
 @permission_classes([IsAdminUser])
 def DetailCategoryView(request, *args, **kwargs):
