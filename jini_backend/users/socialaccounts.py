@@ -15,10 +15,17 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, RefreshToken
 from rest_framework.response import Response
 from . import serializers
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+
 
 User = get_user_model()
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="구글 로그인",
+)
 @api_view(["GET"])
 def google_login(request):
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
@@ -35,6 +42,11 @@ def google_login(request):
     return response
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="구글 로그인",
+)
 @api_view(["GET"])
 def google_callback(request):
     code = request.GET.get("code")
@@ -116,15 +128,25 @@ KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
 KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="카카오 로그인",
+)
 @api_view(["GET"])
 def kakao_login(request):
     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://localhost:3000/auth"
+    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
     client_id = settings.KAKAO_KEY
 
     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="카카오 로그인",
+)
 @api_view(["GET"])
 def kakao_callback(request):
     code = request.GET["code"]
@@ -234,6 +256,11 @@ def kakao_callback(request):
     # return res
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="네이버 로그인",
+)
 @api_view(["GET"])
 def naver_login(request):
     client_id = settings.NAVER_CLIENT_ID
@@ -243,6 +270,11 @@ def naver_login(request):
     )
 
 
+@extend_schema(
+    tags=["Social Login"],
+    description="Social Login",
+    summary="네이버 로그인",
+)
 @api_view(["GET"])
 def naver_callback(request):
     client_id = settings.NAVER_CLIENT_ID
