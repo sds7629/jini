@@ -26,7 +26,7 @@ User = get_user_model()
     description="Social Login",
     summary="구글 로그인",
 )
-@api_view(["POST"])
+@api_view(["GET"])
 def google_login(request):
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     # fmt:off
@@ -47,7 +47,7 @@ def google_login(request):
     description="Social Login",
     summary="구글 로그인",
 )
-@api_view(["POST"])
+@api_view(["GET"])
 def google_callback(request):
     code = request.GET.get("code")
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
@@ -133,7 +133,7 @@ KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
     description="Social Login",
     summary="카카오 로그인",
 )
-@api_view(["POST"])
+@api_view(["GET"])
 def kakao_login(request):
     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
     redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
@@ -147,7 +147,7 @@ def kakao_login(request):
     description="Social Login",
     summary="카카오 로그인",
 )
-@api_view(["POST"])
+@api_view(["GET"])
 def kakao_callback(request):
     code = request.GET["code"]
 
