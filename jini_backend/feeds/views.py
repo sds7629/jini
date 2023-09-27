@@ -372,11 +372,11 @@ def updel_reply(request, reply_pk):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def likes(request, feed_pk):
-    if request.user.is_authenticated:
-        feed = Feed.objects.get(pk=feed_pk)
+    # if request.user.is_authenticated:
+    feed = Feed.objects.get(pk=feed_pk)
 
-        if feed.like_users.filter(pk=request.user.pk).exists():
-            feed.like_users.remove(request.user)
-        else:
-            feed.like_users.add(request.user)
-        return Response({"message": "ok"}, status=status.HTTP_200_OK)
+    if feed.like_users.filter(pk=request.user.pk).exists():
+        feed.like_users.remove(request.user)
+    else:
+        feed.like_users.add(request.user)
+    return Response({"message": "ok"}, status=status.HTTP_200_OK)
