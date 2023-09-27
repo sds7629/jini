@@ -106,7 +106,7 @@ def google_callback(request):
     login(
         request,
         user,
-        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+        backend="django.contrib.auth.backends.ModelBackend",
     )
     return res
 
@@ -119,7 +119,7 @@ KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 @api_view(["GET"])
 def kakao_login(request):
     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
+    redirect_uri = "http://localhost:3000/auth/"
     client_id = settings.KAKAO_KEY
 
     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
@@ -135,7 +135,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
+        "redirect_uri": "http://localhost:3000/auth/",
         "code": code,
     }
 
@@ -152,7 +152,6 @@ def kakao_callback(request):
         "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
     }
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
-    print(user_profile)
     # data = {"access_token": access_token, "code": code}
     kakao_account = user_profile.get("kakao_account")
 
@@ -195,11 +194,13 @@ def kakao_callback(request):
     # res = redirect("http://localhost:3000")
     res = Response(
         {
+            "user": serializers.ListUserSerializer(user).data,
             "token": {
                 "access": access_token,
                 "refresh": refresh_token,
-            }
-        }
+            },
+        },
+        status=status.HTTP_200_OK,
     )
     res.set_cookie("access", access_token, httponly=True)
     res.set_cookie("refresh", refresh_token, httponly=True)
@@ -207,7 +208,7 @@ def kakao_callback(request):
     login(
         request,
         user,
-        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+        backend="django.contrib.auth.backends.ModelBackend",
     )
 
     return res
@@ -328,6 +329,6 @@ def naver_callback(request):
     login(
         request,
         user,
-        backend="rest_framework_simplejwt.authentication.JWTAuthentication",
+        backend="django.contrib.auth.backends.ModelBackend",
     )
     return res
