@@ -26,8 +26,9 @@ User = get_user_model()
 
 
 @extend_schema(
-    tags=["숨김 피드 리스트"],
+    tags=["Feed"],
     description="숨김 피드 리스트",
+    summary="숨김 피드 리스트",
     responses=serializers.GetFeedSerializer,
 )
 @api_view(["GET"])
@@ -60,8 +61,9 @@ def my_secret_feed(request):
 
 
 @extend_schema(
-    tags=["나의 숨김 피드 Detail 수정 및 삭제"],
+    tags=["Feed"],
     description="나의 숨김 피드 Detail 리스트 수정 및 삭제",
+    summary="숨김 피드 Detail 리스트 수정 및 삭제",
     responses=serializers.GetFeedSerializer,
 )
 @api_view(["GET", "DELETE", "PUT"])
@@ -151,8 +153,9 @@ class FeedViewSet(viewsets.ModelViewSet):
             return serializers.PostFeedSerializer
 
     @extend_schema(
-        tags=["공개된 피드 리스트"],
+        tags=["Feed"],
         description="공개된 피드 리스트",
+        summary="공개된 피드 리스트",
         responses=serializers.GetFeedSerializer,
     )
     def list(self, request, *args, **kwargs):
@@ -167,8 +170,9 @@ class FeedViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=["공개된 피드 리스트"],
+        tags=["Feed"],
         description="피드 저장",
+        summary="피드 저장",
         responses=serializers.PostFeedSerializer,
         examples=[
             OpenApiExample(
@@ -193,8 +197,9 @@ class FeedViewSet(viewsets.ModelViewSet):
         return Response(serializers.PostFeedSerializer(feed_data).data)
 
     @extend_schema(
-        tags=["피드 자세히 보기"],
+        tags=["Feed"],
         description="피드 자세히 보기",
+        summary="피드 자세히 보기",
         responses=serializers.GetFeedSerializer,
     )
     def retrieve(self, request, *args, **kwargs):
@@ -257,8 +262,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return obj
 
     @extend_schema(
-        tags=["리뷰 리스트"],
-        description="리뷰 리스트",
+        tags=["Review"],
+        description="리뷰 전체보기",
+        summary="리뷰 전체보기",
         responses=serializers.ReviewSerializer,
     )
     def list(self, request, *args, **kwargs):
@@ -266,9 +272,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Response(ReviewSerializer(queryset, many=True).data)
 
     @extend_schema(
-        tags=["리뷰 자세히 보기"],
-        description="리뷰 자세히 보기",
-        responses=serializers.ReviewSerializer,
+        tags=["Review"],
+        description="리뷰 상세보기",
+        summary="리뷰 상세보기",
     )
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_review_object()
@@ -276,13 +282,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=["리뷰 저장"],
-        description="리뷰 저장",
-        responses=serializers.ReviewSerializer,
+        tags=["Review"],
+        description="리뷰 작성",
+        summary="리뷰 작성",
+        responses=PostReviewSerializer,
         examples=[
             OpenApiExample(
                 response_only=True,
-                summary="리뷰 저장",
+                summary="리뷰 작성",
                 name="Reviews",
                 value={"comment": "내용"},
             ),
@@ -302,13 +309,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
             raise ParseError("이미 리뷰를 작성했습니다.")
 
     @extend_schema(
-        tags=["대댓글 저장"],
-        description="대댓글 저장",
+        tags=["Reply"],
+        description="대댓글 작성",
+        summary="대댓글 작성",
         responses=ReplySerializer,
         examples=[
             OpenApiExample(
                 response_only=True,
-                summary="대댓글 저장",
+                summary="대댓글 작성",
                 name="Reply",
                 value={"comment": "내용"},
             ),
@@ -327,13 +335,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema(
-    tags=["대댓글 수정/삭제"],
+    tags=["Reply"],
     description="대댓글 수정/삭제",
+    summary="대댓글 수정/삭제",
     responses=ReplySerializer,
     examples=[
         OpenApiExample(
             response_only=True,
-            summary="대댓글 저장",
+            summary="대댓글 수정/삭제",
             name="Reply",
             value={"comment": "내용"},
         ),
@@ -355,7 +364,12 @@ def updel_reply(request, reply_pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(["POST"])
+@extend_schema(
+    tags=["Like"],
+    description="좋아요",
+    summary="좋아요",
+)
+@api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def likes(request, feed_pk):
     if request.user.is_authenticated:
