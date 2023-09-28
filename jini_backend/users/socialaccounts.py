@@ -77,7 +77,7 @@ def google_callback(request):
         "name": user_info.get("name", ""),
         "gender": user_info.get("gender", ""),
         "nickname": user_info.get("nickname", ""),
-        "profileImge": user_info.get("picture", None),
+        "profileImg": user_info.get("picture", None),
     }
 
     try:
@@ -136,7 +136,7 @@ KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 @api_view(["GET"])
 def kakao_login(request):
     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
+    redirect_uri = "http://localhost:3000/auth"
     client_id = settings.KAKAO_KEY
 
     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
@@ -157,7 +157,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://www.jinii.shop/api/v1/users/auth/kakao/callback",
+        "redirect_uri": "http://localhost:3000/auth",
         "code": code,
     }
 
@@ -218,14 +218,14 @@ def kakao_callback(request):
         {
             "user": serializers.ListUserSerializer(user).data,
             "token": {
-                "access": access_token,
-                "refresh": refresh_token,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
             },
         },
         status=status.HTTP_200_OK,
     )
-    res.set_cookie("access", access_token, httponly=True)
-    res.set_cookie("refresh", refresh_token, httponly=True)
+    res.set_cookie("access_token", access_token, httponly=True)
+    res.set_cookie("refresh_token", refresh_token, httponly=True)
 
     login(
         request,
