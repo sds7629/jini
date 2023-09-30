@@ -207,6 +207,23 @@ class FeedViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(feed)
         return Response(serializer.data)
 
+    def update(self, request, *args, **kwargs):
+        serializer = serializers.PostFeedSerializer(
+            self.queryset.get(pk=kwargs["pk"]),
+            data=request.data,
+            partial=True,
+        )
+        if request.data.get("category") is not None:
+            category_kind = request.data.get("category")
+        else:
+            category_kind = self.queryset.get(pk=kwargs["pk"]).category
+        category = Category.objects.get(kind=category_kind)
+        serializer.is_valid(raise_exception=True)
+        new_data = serializer.save(category=category)
+        return Response(
+            serializers.GetFeedSerializer(new_data).data, status=status.HTTP_200_OK
+        )
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = (
