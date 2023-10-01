@@ -36,8 +36,8 @@ User = get_user_model()
 def my_secret_feed(request):
     queryset = (
         Feed.objects.annotate(
-            nickname=F("writer__nickname"),
-            profile=F("writer__profileImg"),
+            feed_nickname=F("writer__nickname"),
+            feed_profile=F("writer__profileImg"),
             kind=F("category__kind"),
             likes_count=Count("like_users"),
         )
@@ -71,8 +71,8 @@ def my_secret_feed(request):
 def my_secret_del(request, pk):
     queryset = (
         Feed.objects.annotate(
-            nickname=F("writer__nickname"),
-            profile=F("writer__profileImg"),
+            feed_nickname=F("writer__nickname"),
+            feed_profile=F("writer__profileImg"),
             kind=F("category__kind"),
             likes_count=Count("like_users"),
         )
