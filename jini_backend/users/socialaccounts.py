@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.shortcuts import redirect
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.core.exceptions import ValidationError, BadRequest
 from allauth.socialaccount.models import SocialAccount
@@ -16,7 +17,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Refr
 from rest_framework.response import Response
 from . import serializers
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
-
 
 User = get_user_model()
 
@@ -128,18 +128,18 @@ KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
 KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 
 
-@extend_schema(
-    tags=["Social Login"],
-    description="Social Login",
-    summary="카카오 로그인",
-)
-@api_view(["GET"])
-def kakao_login(request):
-    kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
-    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
-    client_id = settings.KAKAO_KEY
+# @extend_schema(
+#     tags=["Social Login"],
+#     description="Social Login",
+#     summary="카카오 로그인",
+# )
+# @api_view(["GET"])
+# def kakao_login(request):
+#     kakao_api = "https://kauth.kakao.com/oauth/authorize?response_type=code"
+#     redirect_uri = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
+#     client_id = settings.KAKAO_KEY
 
-    return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
+#     return redirect(f"{kakao_api}&client_id={client_id}&redirect_uri={redirect_uri}")
 
 
 @extend_schema(
@@ -157,7 +157,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://localhost:3000/auth",
+        "redirect_uri": "http://localhost:3000/kakao_callback",
         "code": code,
     }
 
@@ -216,7 +216,6 @@ def kakao_callback(request):
     # res = redirect("http://localhost:3000")
     res = Response(
         {
-            "user": serializers.ListUserSerializer(user).data,
             "token": {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
