@@ -104,16 +104,21 @@ def my_secret_del(request, pk):
             data=request.data,
             partial=True,
         )
+        if request.data.get("category") is not None:
+            category_kind = request.data.get("category")
+        else:
+            category_kind = queryset.first().category
+        category = Category.objects.get(kind=category_kind)
         serializer.is_valid(raise_exception=True)
-        data = serializer.save()
+        data = serializer.save(category=category)
         return Response(serializers.GetFeedSerializer(data).data)
 
 
 class FeedViewSet(viewsets.ModelViewSet):
     queryset = (
         Feed.objects.annotate(
-            nickname=F("writer__nickname"),
-            profile=F("writer__profileImg"),
+            feed_nickname=F("writer__nickname"),
+            feed_profile=F("writer__profileImg"),
             kind=F("category__kind"),
             likes_count=Count("like_users"),
         )
@@ -207,6 +212,11 @@ class FeedViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(feed)
         return Response(serializer.data)
 
+    @extend_schema(
+        tags=["Feed"],
+        description="피드 수정",
+        summary="피드 수정",
+    )
     def update(self, request, *args, **kwargs):
         serializer = serializers.PostFeedSerializer(
             self.queryset.get(pk=kwargs["pk"]),

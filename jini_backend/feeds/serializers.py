@@ -40,7 +40,7 @@ class GetFeedSerializer(serializers.ModelSerializer):
 
 
 class FeedDetailSerializer(serializers.ModelSerializer):
-    writer = serializers.SerializerMethodField()
+    feed_writer = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
@@ -54,8 +54,12 @@ class FeedDetailSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         return obj.writer == request.user
 
-    def get_writer(self, obj):
-        return obj.nickname
+    def get_feed_writer(self, obj):
+        feed_writer = {
+            "nickname": obj.feed_nickname,
+            "profileImg": obj.feed_profile,
+        }
+        return feed_writer
 
     def get_category(self, obj):
         return obj.kind
