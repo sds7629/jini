@@ -1,18 +1,23 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.contrib.auth.hashers import check_password
 from django.db.models import Prefetch
-from django.conf import settings
+from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.exceptions import ParseError, NotFound, MethodNotAllowed
+from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, RefreshToken
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiExample
 from feeds.models import Feed
+from .emailconfirm import email_activation_token
 from . import permissions
 from . import serializers
 
@@ -74,14 +79,27 @@ class UserViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = serializers.CreateUserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user_data = serializer.save()
             # token = TokenObtainPairSerializer.get_token(user)
             # refresh_token = str(token)
             # access_token = str(token.access_token)
+            current_site = get_current_site(request)
+            message = render_to_string(
+                "users/verification_email.html",
+                {
+                    "user": user_data,
+                    "domain": current_site.domain,
+                    "uid": urlsafe_base64_encode(force_bytes(user_data.pk)),
+                    "token": email_activation_token.make_token(user_data),
+                },
+            )
+            mail_title = "계정 활성화 메일"
+            mail_to = request.data.get("email")
+            email = EmailMessage(mail_title, message, to=[mail_to])
+            email.send()
             res = Response(
                 {
-                    "user": serializer.data,
-                    "message": "회원가입 완료.",
+                    "message": "이메일 인증을 진행해주세요",
                 },
                 status=status.HTTP_200_OK,
             )

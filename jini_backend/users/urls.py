@@ -1,20 +1,32 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
+from dj_rest_auth.registration.views import VerifyEmailView
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.contrib.auth import views as auth_views
 from . import views
 from . import socialaccounts
+from . import emailconfirm
 
 app_name = "users"
 
 router = routers.SimpleRouter()
 router.register(r"users", views.UserViewSet)
 
+
+confirmpatterns = [
+    path(
+        "activate/<str:uid64>/<str:token>",
+        emailconfirm.activate,
+        name="activate",
+    ),
+]
+
 urlpatterns = [
+    path("users/", include(confirmpatterns)),
     path("users/my_info/", views.get_info),
     path("users/auth/google/login/", socialaccounts.google_login),
     path("users/auth/google/callback", socialaccounts.google_callback),
-    path("users/auth/kakao/login/", socialaccounts.kakao_login),
+    # path("users/auth/kakao/login/", socialaccounts.kakao_login),
     path("users/auth/kakao/callback", socialaccounts.kakao_callback),
     path("users/auth/naver/login/", socialaccounts.naver_login),
     path("users/auth/naver/callback", socialaccounts.naver_callback),
