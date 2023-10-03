@@ -21,25 +21,25 @@ from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiParamete
 User = get_user_model()
 
 
-@extend_schema(
-    tags=["Social Login"],
-    description="Social Login",
-    summary="구글 로그인",
-)
-@api_view(["GET"])
-def google_login(request):
-    client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
-    # fmt:off
-    scope = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
-    # fmt: on
-    redirect_uri = "http://www.jinii.shop/api/v1/users/auth/google/callback"
-    google_auth_api = "https://accounts.google.com/o/oauth2/v2/auth"
+# @extend_schema(
+#     tags=["Social Login"],
+#     description="Social Login",
+#     summary="구글 로그인",
+# )
+# @api_view(["GET"])
+# def google_login(request):
+#     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
+#     # fmt:off
+#     scope = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+#     # fmt: on
+#     redirect_uri = "http://www.jinii.shop/api/v1/users/auth/google/callback"
+#     google_auth_api = "https://accounts.google.com/o/oauth2/v2/auth"
 
-    response = redirect(
-        f"{google_auth_api}?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope={scope}"
-    )
+#     response = redirect(
+#         f"{google_auth_api}?client_id={client_id}&response_type=code&redirect_uri={redirect_uri}&scope={scope}"
+#     )
 
-    return response
+#     return response
 
 
 @extend_schema(
@@ -54,7 +54,7 @@ def google_callback(request):
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
     state = "random_string"
-    redirection_uri = "http://www.jinii.shop/api/v1/users/auth/google/callback"
+    redirection_uri = "http://localhost:3000/google_callback"
 
     google_token_api = f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type={grant_type}&redirect_uri={redirection_uri}&state={state}"
 
@@ -255,18 +255,18 @@ def kakao_callback(request):
     # return res
 
 
-@extend_schema(
-    tags=["Social Login"],
-    description="Social Login",
-    summary="네이버 로그인",
-)
-@api_view(["GET"])
-def naver_login(request):
-    client_id = settings.NAVER_CLIENT_ID
-    redierct_uri = "http://www.jinii.shop/api/v1/users/auth/naver/callback"
-    return redirect(
-        f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={client_id}&state=STATE_STRING&redirect_uri={redierct_uri}"
-    )
+# @extend_schema(
+#     tags=["Social Login"],
+#     description="Social Login",
+#     summary="네이버 로그인",
+# )
+# @api_view(["GET"])
+# def naver_login(request):
+#     client_id = settings.NAVER_CLIENT_ID
+#     redierct_uri = "http://www.jinii.shop/api/v1/users/auth/naver/callback"
+#     return redirect(
+#         f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={client_id}&state=STATE_STRING&redirect_uri={redierct_uri}"
+#     )
 
 
 @extend_schema(
@@ -279,7 +279,7 @@ def naver_callback(request):
     client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_CLIENT_SECRET
     code = request.GET.get("code")
-    uri = "http://www.jinii.shop/api/v1/users/auth/naver/callback"
+    uri = "http://localhost:3000/naver_callback"
     state_string = request.GET.get("state")
 
     token_req = requests.get(
