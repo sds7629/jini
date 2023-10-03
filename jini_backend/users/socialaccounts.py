@@ -280,7 +280,6 @@ def kakao_callback(request):
 )
 @api_view(["GET"])
 def naver_callback(request):
-    print("네이버 로그인 시작..")
     client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_CLIENT_SECRET
     code = request.GET.get("code")
@@ -293,8 +292,6 @@ def naver_callback(request):
     token_res_json = token_req.json()
 
     access_token = token_res_json.get("access_token")
-
-    print(access_token)
 
     profile_request = requests.get(
         "https://openapi.naver.com/v1/nid/me",
@@ -364,8 +361,6 @@ def naver_callback(request):
     )
     res.set_cookie("access_token", access_token, httponly=True)
     res.set_cookie("refresh_token", refresh_token, httponly=True)
-
-    print(res)
 
     login(
         request,
