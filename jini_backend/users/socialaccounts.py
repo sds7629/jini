@@ -161,6 +161,8 @@ def kakao_callback(request):
         "code": code,
     }
 
+    print(code)
+
     token = requests.post("https://kauth.kakao.com/oauth/token", data=data).json()
 
     access_token = token["access_token"]
@@ -176,6 +178,8 @@ def kakao_callback(request):
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
     # data = {"access_token": access_token, "code": code}
     kakao_account = user_profile.get("kakao_account")
+
+    print(kakao_account)
 
     nickname = kakao_account.get("profile")["nickname"]
     email = kakao_account.get("email")
