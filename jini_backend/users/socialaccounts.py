@@ -289,6 +289,8 @@ def naver_callback(request):
 
     access_token = token_res_json.get("access_token")
 
+    print(access_token)
+
     profile_request = requests.get(
         "https://openapi.naver.com/v1/nid/me",
         headers={"Authorization": f"Bearer {access_token}"},
@@ -357,6 +359,9 @@ def naver_callback(request):
     )
     res.set_cookie("access_token", access_token, httponly=True)
     res.set_cookie("refresh_token", refresh_token, httponly=True)
+
+    print(res)
+
     login(
         request,
         user,
