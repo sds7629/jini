@@ -276,6 +276,7 @@ def kakao_callback(request):
 )
 @api_view(["GET"])
 def naver_callback(request):
+    print("네이버 로그인 시작..")
     client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_CLIENT_SECRET
     code = request.GET.get("code")
