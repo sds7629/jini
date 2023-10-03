@@ -40,8 +40,11 @@ class GetFeedSerializer(serializers.ModelSerializer):
         return obj.likes_count
 
     def get_is_like(self, obj):
-        request = self.context["request"]
-        return obj.like_users.filter(pk=request.user.pk).exists()
+        try:
+            request = self.context["request"]
+            return obj.like_users.filter(pk=request.user.pk).exists()
+        except:
+            return False
 
 
 class FeedDetailSerializer(serializers.ModelSerializer):
