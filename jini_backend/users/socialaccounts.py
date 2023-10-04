@@ -179,6 +179,8 @@ def kakao_callback(request):
     if not token.ok:
         raise ValidationError("토큰 요청이 잘못되었습니다.")
 
+    print(token.json())
+
     access_token = token.json().get("access_token")
 
     if not access_token:
