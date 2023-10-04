@@ -170,10 +170,13 @@ def kakao_callback(request):
     print(code)
 
     token = requests.post(
-        "https://kauth.kakao.com/oauth/token", headers=headers, data=data
-    ).json()
+        "https://kauth.kakao.com/oauth/token",
+        headers=headers,
+        data=data,
+    )
 
-    access_token = token["access_token"]
+    access_token = token.json().get("access_token")
+
     if not access_token:
         return Response(
             {"message": "토큰을 받아오지 못했습니다."}, status=status.HTTP_400_BAD_REQUEST
