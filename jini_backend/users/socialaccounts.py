@@ -125,7 +125,7 @@ def google_callback(request):
 
 KAKAO_TOKEN_API = "https://kauth.kakao.com/oauth/token"
 KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
-KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
+KAKAO_CALLBACK_URI = "http://localhost:3000/naver_callback"
 
 
 # @extend_schema(
@@ -156,6 +156,10 @@ def kakao_callback(request):
     if not code:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
@@ -165,7 +169,9 @@ def kakao_callback(request):
 
     print(code)
 
-    token = requests.post("https://kauth.kakao.com/oauth/token", data=data).json()
+    token = requests.post(
+        "https://kauth.kakao.com/oauth/token", headers=headers, data=data
+    ).json()
 
     access_token = token["access_token"]
     if not access_token:
