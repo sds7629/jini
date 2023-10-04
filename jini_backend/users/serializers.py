@@ -98,6 +98,10 @@ class PasswordChangeEmailSerializer(serializers.ModelSerializer):
         else:
             return obj
 
+    class Meta:
+        model = get_user_model()
+        fields = ("email",)
+
 
 class PasswordChangeSerializer(serializers.ModelSerializer):
     password = serializers.CharField(required=True)

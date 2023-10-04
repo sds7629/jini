@@ -368,7 +368,7 @@ def reset_password(request):
     user_base.set_password(new_password2)
     user_base.save()
     res = {
-        "message": "비밀번호가 변경되었습니다.",
+        "message": "비밀번호가 변경되었습니다 다시 로그인 해주세요.",
         "status": status.HTTP_200_OK,
     }
     return res
