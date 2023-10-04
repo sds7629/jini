@@ -351,3 +351,24 @@ def reset_password_sendmail(request):
             "일치하는 아이디가 없습니다.",
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+
+@permission_classes([AllowAny])
+@api_view(["PUT"])
+def reset_password(request):
+    serializer = serializers.PasswordChangeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    uid = request.data.get("uid")
+    new_password1 = request.data.get("password1")
+    new_password2 = request.data.get("password2")
+    user_base = User.objects.get(pk=uid)
+    user = authenticate(email=user_base.email, password=new_password1)
+    if user:
+        return Response("기존 비밀번호와 같습니다.", status=status.HTTP_400_BAD_REQUEST)
+    user_base.set_password(new_password2)
+    user_base.save()
+    res = {
+        "message": "비밀번호가 변경되었습니다.",
+        "status": status.HTTP_200_OK,
+    }
+    return res

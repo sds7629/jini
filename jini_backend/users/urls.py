@@ -24,6 +24,11 @@ confirmpatterns = [
         views.reset_password_sendmail,
         name="reset_mail",
     ),
+    path(
+        "reset_passwd/",
+        views.reset_password,
+        name="reset_passwd",
+    )
     # path(
     #     "reset/<str:uid64>/<str:token>",views.reset_password_sendmail, name="reset"),
     # ),
