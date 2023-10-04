@@ -19,6 +19,14 @@ confirmpatterns = [
         emailconfirm.activate,
         name="activate",
     ),
+    path(
+        "reset_mail/",
+        views.reset_password_sendmail,
+        name="reset_mail",
+    ),
+    # path(
+    #     "reset/<str:uid64>/<str:token>",views.reset_password_sendmail, name="reset"),
+    # ),
 ]
 
 urlpatterns = [

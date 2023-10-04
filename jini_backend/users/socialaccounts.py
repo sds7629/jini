@@ -149,6 +149,8 @@ KAKAO_CALLBACK_URI = "http://www.jinii.shop/api/v1/users/auth/kakao/callback"
 )
 @api_view(["GET"])
 def kakao_callback(request):
+    print("카카오 로그인 시작")
+
     code = request.GET["code"]
 
     if not code:
@@ -229,6 +231,8 @@ def kakao_callback(request):
     )
     res.set_cookie("access_token", access_token, httponly=True)
     res.set_cookie("refresh_token", refresh_token, httponly=True)
+
+    print(res)
 
     login(
         request,

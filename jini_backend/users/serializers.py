@@ -87,3 +87,17 @@ class SearchUserSerializer(serializers.ModelSerializer):
             "nickname",
             "profileImg",
         )
+
+
+class PasswordChangeEmailSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=100)
+
+    def validate_email(self, obj):
+        if not User.objects.filter(email=obj).exists():
+            raise serializers.ValidationError("존재하지 않는 아이디입니다.")
+        else:
+            return obj
+
+
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=True)
