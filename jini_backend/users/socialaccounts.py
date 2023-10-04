@@ -50,6 +50,7 @@ User = get_user_model()
 @api_view(["GET"])
 def google_callback(request):
     code = request.GET.get("code")
+    print("구글 로그인 시작", code)
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
@@ -147,11 +148,11 @@ KAKAO_CALLBACK_URI = "http://localhost:3000/naver_callback"
     description="Social Login",
     summary="카카오 로그인",
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def kakao_callback(request):
     print("카카오 로그인 시작")
 
-    code = request.GET["code"]
+    code = request.data.get("code")
 
     if not code:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -175,6 +176,9 @@ def kakao_callback(request):
         data=data,
     )
 
+    if not token.ok:
+        raise ValidationError("토큰 요청이 잘못되었습니다.")
+
     access_token = token.json().get("access_token")
 
     if not access_token:
@@ -187,7 +191,6 @@ def kakao_callback(request):
         "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
     }
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
-    # data = {"access_token": access_token, "code": code}
     kakao_account = user_profile.get("kakao_account")
 
     print(kakao_account)
