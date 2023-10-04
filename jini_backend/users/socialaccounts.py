@@ -50,7 +50,6 @@ User = get_user_model()
 @api_view(["GET"])
 def google_callback(request):
     code = request.GET.get("code")
-    print("구글 로그인 시작", code)
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
@@ -150,8 +149,6 @@ KAKAO_CALLBACK_URI = "http://localhost:3000/naver_callback"
 )
 @api_view(["POST"])
 def kakao_callback(request):
-    print("카카오 로그인 시작")
-
     code = request.data.get("code")
 
     if not code:
@@ -168,8 +165,6 @@ def kakao_callback(request):
         "code": code,
     }
 
-    print(code)
-
     token = requests.post(
         "https://kauth.kakao.com/oauth/token",
         headers=headers,
@@ -178,8 +173,6 @@ def kakao_callback(request):
 
     if not token.ok:
         raise ValidationError("토큰 요청이 잘못되었습니다.")
-
-    print(token.json())
 
     access_token = token.json().get("access_token")
 
@@ -194,8 +187,6 @@ def kakao_callback(request):
     }
     user_profile = requests.get(KAKAO_USER_API, headers=headers).json()
     kakao_account = user_profile.get("kakao_account")
-
-    print(kakao_account)
 
     nickname = kakao_account.get("profile")["nickname"]
     email = kakao_account.get("email")
@@ -245,8 +236,6 @@ def kakao_callback(request):
     )
     res.set_cookie("access_token", access_token, httponly=True)
     res.set_cookie("refresh_token", refresh_token, httponly=True)
-
-    print(res)
 
     login(
         request,
