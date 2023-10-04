@@ -47,9 +47,9 @@ User = get_user_model()
     description="Social Login",
     summary="구글 로그인",
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def google_callback(request):
-    code = request.GET.get("code")
+    code = request.data.get("code")
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
