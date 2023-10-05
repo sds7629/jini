@@ -7,8 +7,8 @@ from django.template.loader import render_to_string
 from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -358,17 +358,22 @@ def reset_password_sendmail(request):
 def reset_password(request):
     serializer = serializers.PasswordChangeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    uid = request.data.get("uid")
     new_password1 = request.data.get("password1")
     new_password2 = request.data.get("password2")
+    if new_password1 == new_password2:
+        password = new_password1
+    uid = request.data.get("uid")
+    uid_pk = uid = force_str(urlsafe_base64_decode(uid))
     user_base = User.objects.get(pk=uid)
-    user = authenticate(email=user_base.email, password=new_password1)
+    user = authenticate(email=user_base.email, password=password)
     if user:
         return Response("기존 비밀번호와 같습니다.", status=status.HTTP_400_BAD_REQUEST)
-    user_base.set_password(new_password2)
+    user_base.set_password(password)
     user_base.save()
-    res = {
-        "message": "비밀번호가 변경되었습니다 다시 로그인 해주세요.",
-        "status": status.HTTP_200_OK,
-    }
+    res = Response(
+        {
+            "message": "비밀번호가 변경되었습니다 다시 로그인 해주세요.",
+            "status": status.HTTP_200_OK,
+        }
+    )
     return res

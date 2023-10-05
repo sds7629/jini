@@ -103,5 +103,5 @@ class PasswordChangeEmailSerializer(serializers.ModelSerializer):
         fields = ("email",)
 
 
-class PasswordChangeSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(required=True)
+class PasswordChangeSerializer(serializers.Serializer):
+    password1 = serializers.CharField(required=True)
