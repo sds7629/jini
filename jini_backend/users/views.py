@@ -343,7 +343,7 @@ def reset_password_sendmail(request):
         email = EmailMessage(mail_title, message, to=[mail_to])
         email.send()
         return Response(
-            "메일이 발송되었습니다.",
+            "인증 메일이 발송되었습니다.",
             status=status.HTTP_200_OK,
         )
     except (ValueError, OverflowError, User.DoesNotExist):
@@ -363,8 +363,8 @@ def reset_password(request):
     if new_password1 == new_password2:
         password = new_password1
     uid = request.data.get("uid")
-    uid_pk = uid = force_str(urlsafe_base64_decode(uid))
-    user_base = User.objects.get(pk=uid)
+    uid_pk = force_str(urlsafe_base64_decode(uid))
+    user_base = User.objects.get(pk=uid_pk)
     user = authenticate(email=user_base.email, password=password)
     if user:
         return Response("기존 비밀번호와 같습니다.", status=status.HTTP_400_BAD_REQUEST)
