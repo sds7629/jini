@@ -113,8 +113,8 @@ def google_callback(request):
         status=status.HTTP_200_OK,
     )
 
-    res.set_cookie("access", access_token, httponly=True)
-    res.set_cookie("refresh", refresh_token, httponly=True)
+    # res.set_cookie("access", access_token, httponly=True)
+    # res.set_cookie("refresh", refresh_token, httponly=True)
     login(
         request,
         user,
@@ -234,8 +234,8 @@ def kakao_callback(request):
         },
         status=status.HTTP_200_OK,
     )
-    res.set_cookie("access_token", access_token, httponly=True)
-    res.set_cookie("refresh_token", refresh_token, httponly=True)
+    # res.set_cookie("access_token", access_token, httponly=True)
+    # res.set_cookie("refresh_token", refresh_token, httponly=True)
 
     login(
         request,
@@ -366,8 +366,8 @@ def naver_callback(request):
         },
         status=status.HTTP_200_OK,
     )
-    res.set_cookie("access_token", access_token, httponly=True)
-    res.set_cookie("refresh_token", refresh_token, httponly=True)
+    # res.set_cookie("access_token", access_token, httponly=True)
+    # res.set_cookie("refresh_token", refresh_token, httponly=True)
 
     login(
         request,

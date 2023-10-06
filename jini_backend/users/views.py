@@ -176,8 +176,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_200_OK,
             )
-            res.set_cookie("access_token", access_token, httponly=True)
-            res.set_cookie("refresh_token", refresh_token, httponly=True)
+            # res.set_cookie("access_token", access_token, httponly=True)
+            # res.set_cookie("refresh_token", refresh_token, httponly=True)
             login(request, user)
             return res
         return Response({"user": "없는 유저입니다."}, status=status.HTTP_400_BAD_REQUEST)
