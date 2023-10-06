@@ -92,7 +92,7 @@ def google_callback(request):
             email=user_profile["email"],
             name=user_profile["name"],
             nickname=user_profile["nickname"],
-            profileImg=user_profile["profileImge"],
+            profileImg=user_profile["profileImg"],
             login_method=User.LOGIN_GOOGLE,
         )
         user.set_unusable_password()
