@@ -321,38 +321,6 @@ def change_password(request):
         raise ValidationError({"message": "새로운 비밀번호가 일치하지 않습니다."})
 
 
-@api_view(["PUT"])
-def reset_password_sendmail(request):
-    try:
-        serializer = serializers.PasswordChangeEmailSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.data["email"]
-        user = User.objects.get(email=email)
-        current_site = get_current_site(request)
-        message = render_to_string(
-            "users/reset_password.html",
-            {
-                "user": user,
-                "domain": current_site.domain,
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": email_activation_token.make_token(user),
-            },
-        )
-        mail_title = "비밀번호 재설정 메일"
-        mail_to = request.data.get("email")
-        email = EmailMessage(mail_title, message, to=[mail_to])
-        email.send()
-        return Response(
-            "인증 메일이 발송되었습니다.",
-            status=status.HTTP_200_OK,
-        )
-    except (ValueError, OverflowError, User.DoesNotExist):
-        return Response(
-            "일치하는 아이디가 없습니다.",
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
 @permission_classes([AllowAny])
 @api_view(["PUT"])
 def reset_password(request):

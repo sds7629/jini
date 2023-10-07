@@ -21,7 +21,7 @@ confirmpatterns = [
     ),
     path(
         "reset_mail/",
-        views.reset_password_sendmail,
+        emailconfirm.reset_password_sendmail,
         name="reset_mail",
     ),
     path(
