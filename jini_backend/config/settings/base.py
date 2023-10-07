@@ -66,6 +66,7 @@ THIRDPARTY_APPS = [
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.kakao",
     "allauth.socialaccount.providers.naver",
+    "adrf",
 ]
 
 DEFAULT_APPS = [
@@ -106,7 +107,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -209,6 +210,8 @@ EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = (
 )
 
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 
 # 이메일에 자동으로 표시되는 사이트 정보
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "JINI"
