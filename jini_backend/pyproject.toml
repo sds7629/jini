@@ -24,6 +24,7 @@ drf-nested-routers = "^0.93.4"
 requests = "^2.31.0"
 django-allauth = "^0.56.1"
 dj-rest-auth = "^5.0.0"
+adrf = "^0.1.2"
 
 
 [build-system]
