@@ -25,6 +25,7 @@ requests = "^2.31.0"
 django-allauth = "^0.56.1"
 dj-rest-auth = "^5.0.0"
 adrf = "^0.1.2"
+uvicorn = "^0.23.2"
 
 
 [build-system]
