@@ -24,9 +24,19 @@ services:
       - ./nginx:/etc/nginx/conf.d
       - ./staticfiles:/data/static
       - ./media:/data/media
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
     ports:
       - "80:80"
-      # - "443:443"
+      - "443:443"
     depends_on:
       - back
+  
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
 
+  
