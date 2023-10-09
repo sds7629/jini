@@ -54,10 +54,7 @@ async def reset_password_sendmail(request):
         )
         mail_title = "비밀번호 재설정 메일"
         mail_to = request.data.get("email")
-        # email = EmailMessage(mail_title, message, to=[mail_to])
-        # email.send()
         asyncio.create_task(send_email(mail_title, message, mail_to))
-        # await send_email(mail_title, message, mail_to)
         return Response(
             "인증 메일이 발송되었습니다.",
             status=status.HTTP_200_OK,
