@@ -1,6 +1,8 @@
 import asyncio
+from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
@@ -12,30 +14,25 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from asgiref.sync import sync_to_async
+from asgiref.sync import sync_to_async, async_to_sync
 from adrf.decorators import api_view
 from . import serializers
 
 
 User = get_user_model()
 
+asend_mail = sync_to_async(send_mail, thread_sensitive=False)
 
-@sync_to_async
-def send_email(request, user) -> None:
-    current_site = get_current_site(request)
-    message = render_to_string(
-        "users/reset_password.html",
-        {
-            "user": user,
-            "domain": current_site.domain,
-            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-            "token": email_activation_token.make_token(user),
-        },
+
+async def send_email(subject, message, mail_to) -> None:
+    asyncio.create_task(
+        await asend_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[mail_to],
+        )
     )
-    mail_title = "비밀번호 재설정 메일"
-    mail_to = request.data.get("email")
-    email = EmailMessage(mail_title, message, to=[mail_to])
-    email.send()
 
 
 @api_view(["PUT"])
@@ -45,10 +42,22 @@ async def reset_password_sendmail(request):
         serializer.is_valid(raise_exception=True)
         email = serializer.data["email"]
         user = User.objects.get(email=email)
-        task = asyncio.create_task(send_email(request, user))
-        # loop.run_until_complete(reset_password_sendmail(request, user))
-        await task
-        # asyncio.run(send_email(request, user))
+        current_site = get_current_site(request)
+        message = render_to_string(
+            "users/reset_password.html",
+            {
+                "user": user,
+                "domain": current_site.domain,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": email_activation_token.make_token(user),
+            },
+        )
+        mail_title = "비밀번호 재설정 메일"
+        mail_to = request.data.get("email")
+        # email = EmailMessage(mail_title, message, to=[mail_to])
+        # email.send()
+        asyncio.create_task(send_email(mail_title, message, mail_to))
+        # await send_email(mail_title, message, mail_to)
         return Response(
             "인증 메일이 발송되었습니다.",
             status=status.HTTP_200_OK,
