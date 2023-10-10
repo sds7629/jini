@@ -87,7 +87,7 @@ def activate(request, uid64, token):
         token = TokenObtainPairSerializer.get_token(user)
         refresh_token = str(token)
         access_token = str(token.access_token)
-        res = redirect("http://locahost:3000")
+        res = redirect("https://www.jinii.shop")
         res.set_cookie("accesstoken", access_token, httponly=True)
         res.set_cookie("refresh_token", refresh_token, httponly=True)
         return res

@@ -47,6 +47,7 @@ urlpatterns = [
     path("users/val_nickname/", views.validate_nickname),
     path("users/change-password", views.change_password),
     path("users/Refresh/", TokenRefreshView.as_view()),
+    path("users/register_user/", views.register_user),
     path("", include(router.urls)),
     # path("users/<int:pk>/signout", views.signout),
 ]

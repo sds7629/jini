@@ -1,3 +1,7 @@
+import asyncio
+from adrf.decorators import api_view as async_api_view
+from .emailconfirm import send_email
+from django.utils.decorators import classonlymethod
 from django.shortcuts import redirect
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import get_user_model, login, logout, authenticate
@@ -56,55 +60,8 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @extend_schema(
-        tags=["User"],
-        description="회원 가입",
-        summary="회원 가입",
-        responses=serializers.CreateUserSerializer,
-        examples=[
-            OpenApiExample(
-                response_only=True,
-                summary="회원 가입",
-                name="Register",
-                value={
-                    "email": "email",
-                    "password": "password",
-                    "nickname": "nickname",
-                    "gender": "gender",
-                    "name": "name",
-                },
-            ),
-        ],
-    )
     def create(self, request, *args, **kwargs):
-        serializer = serializers.CreateUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user_data = serializer.save()
-            # token = TokenObtainPairSerializer.get_token(user)
-            # refresh_token = str(token)
-            # access_token = str(token.access_token)
-            current_site = get_current_site(request)
-            message = render_to_string(
-                "users/verification_email.html",
-                {
-                    "user": user_data,
-                    "domain": current_site.domain,
-                    "uid": urlsafe_base64_encode(force_bytes(user_data.pk)),
-                    "token": email_activation_token.make_token(user_data),
-                },
-            )
-            mail_title = "계정 활성화 메일"
-            mail_to = request.data.get("email")
-            email = EmailMessage(mail_title, message, to=[mail_to])
-            email.send()
-            res = Response(
-                {
-                    "message": "이메일 인증을 진행해주세요",
-                },
-                status=status.HTTP_200_OK,
-            )
-            return res
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise MethodNotAllowed("POST")
 
     @extend_schema(
         tags=["사용안함"],
@@ -113,7 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
         responses=serializers.UserSerializer,
     )
     def destroy(self, request, *args, **kwargs):
-        return redirect("http://www.jinii.shop/api/v1/users/logout")
+        return redirect("https://www.jinii.shop/api/v1/users/logout")
 
     @extend_schema(
         tags=["User"],
@@ -315,7 +272,7 @@ def change_password(request):
     if new_password == confirm_new_password:
         user.set_password(new_password)
         user.save()
-        return redirect("http://localhost:3000")
+        return redirect("https://www.jinii.shop")
         # return Response({"message": "ok"})
     else:
         raise ValidationError({"message": "새로운 비밀번호가 일치하지 않습니다."})
@@ -345,3 +302,54 @@ def reset_password(request):
         }
     )
     return res
+
+
+@extend_schema(
+    tags=["User"],
+    description="회원 가입",
+    summary="회원 가입",
+    responses=serializers.CreateUserSerializer,
+    examples=[
+        OpenApiExample(
+            response_only=True,
+            summary="회원 가입",
+            name="Register",
+            value={
+                "email": "email",
+                "password": "password",
+                "nickname": "nickname",
+                "gender": "gender",
+                "name": "name",
+            },
+        ),
+    ],
+)
+@async_api_view(["POST"])
+async def register_user(request):
+    serializer = serializers.CreateUserSerializer(data=request.data)
+    if serializer.is_valid():
+        user_data = serializer.save()
+        # token = TokenObtainPairSerializer.get_token(user)
+        # refresh_token = str(token)
+        # access_token = str(token.access_token)
+        current_site = get_current_site(request)
+        message = render_to_string(
+            "users/verification_email.html",
+            {
+                "user": user_data,
+                "domain": current_site.domain,
+                "uid": urlsafe_base64_encode(force_bytes(user_data.pk)),
+                "token": email_activation_token.make_token(user_data),
+            },
+        )
+        mail_title = "계정 활성화 메일"
+        mail_to = request.data.get("email")
+        asyncio.create_task(send_email(mail_title, message, mail_to))
+        res = Response(
+            {
+                "message": "이메일 인증을 진행해주세요",
+            },
+            status=status.HTTP_200_OK,
+        )
+        return res
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
