@@ -150,9 +150,9 @@ class FeedViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.action in ["retrieve", "delete", "partial_update", "update"]:
+        if self.action in ["delete", "partial_update", "update"]:
             return serializers.FeedDetailSerializer
-        elif self.action in ["list"]:
+        elif self.action in ["list", "retrieve"]:
             return serializers.GetFeedSerializer
         else:
             return serializers.PostFeedSerializer
@@ -213,7 +213,7 @@ class FeedViewSet(viewsets.ModelViewSet):
     )
     def retrieve(self, request, *args, **kwargs):
         feed = self.get_object()
-        serializer = self.get_serializer(feed)
+        serializer = self.get_serializer(feed, context={"request": request})
         return Response(serializer.data)
 
     @extend_schema(
