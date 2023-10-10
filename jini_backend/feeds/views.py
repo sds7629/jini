@@ -150,9 +150,9 @@ class FeedViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.action in ["delete", "partial_update", "update"]:
+        if self.action in ["retrieve", "delete", "partial_update", "update"]:
             return serializers.FeedDetailSerializer
-        elif self.action in ["list", "retrieve"]:
+        elif self.action in ["list"]:
             return serializers.GetFeedSerializer
         else:
             return serializers.PostFeedSerializer
@@ -235,7 +235,11 @@ class FeedViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         new_data = serializer.save(category=category)
         return Response(
-            serializers.GetFeedSerializer(new_data).data, status=status.HTTP_200_OK
+            serializers.FeedDetailSerializer(
+                new_data,
+                context={"request": request},
+            ).data,
+            status=status.HTTP_200_OK,
         )
 
 

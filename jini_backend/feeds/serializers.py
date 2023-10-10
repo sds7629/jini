@@ -53,7 +53,7 @@ class FeedDetailSerializer(serializers.ModelSerializer):
     category = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
-    # is_like = serializers.SerializerMethodField()
+    is_like = serializers.SerializerMethodField()
 
     class Meta:
         model = Feed
@@ -76,9 +76,9 @@ class FeedDetailSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         return obj.likes_count
 
-    # def get_is_like(self, obj):
-    #     request = self.context["request"]
-    #     return obj.like_users.filter(pk=request.user.pk).exists()
+    def get_is_like(self, obj):
+        request = self.context["request"]
+        return obj.like_users.filter(pk=request.user.pk).exists()
 
     def get_reviews(self, obj):
         reviews = []
