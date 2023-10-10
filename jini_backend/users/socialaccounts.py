@@ -125,7 +125,7 @@ def google_callback(request):
 
 KAKAO_TOKEN_API = "https://kauth.kakao.com/oauth/token"
 KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
-KAKAO_CALLBACK_URI = "https://www.jinii.shop/naver_callback"
+KAKAO_CALLBACK_URI = "https://www.jinii.shop/kakao_callback"
 
 
 # @extend_schema(
