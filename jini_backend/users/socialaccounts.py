@@ -54,7 +54,7 @@ def google_callback(request):
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     grant_type = "authorization_code"
     state = "random_string"
-    redirection_uri = "http://localhost:3000/google_callback"
+    redirection_uri = "https://www.jinii.shop/google_callback"
 
     google_token_api = f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type={grant_type}&redirect_uri={redirection_uri}&state={state}"
 
@@ -125,7 +125,7 @@ def google_callback(request):
 
 KAKAO_TOKEN_API = "https://kauth.kakao.com/oauth/token"
 KAKAO_USER_API = "https://kapi.kakao.com/v2/user/me"
-KAKAO_CALLBACK_URI = "http://localhost:3000/naver_callback"
+KAKAO_CALLBACK_URI = "https://www.jinii.shop/naver_callback"
 
 
 # @extend_schema(
@@ -161,7 +161,7 @@ def kakao_callback(request):
     data = {
         "grant_type": "authorization_code",
         "client_id": settings.KAKAO_KEY,
-        "redirect_uri": "http://localhost:3000/kakao_callback",
+        "redirect_uri": "https://www.jinii.shop/kakao_callback",
         "code": code,
     }
 
@@ -290,7 +290,7 @@ def naver_callback(request):
     client_id = settings.NAVER_CLIENT_ID
     client_secret = settings.NAVER_CLIENT_SECRET
     code = request.GET.get("code")
-    uri = "http://localhost:3000/naver_callback"
+    uri = "https://www.jinii.shop/naver_callback"
     state_string = request.GET.get("state")
 
     token_req = requests.get(
