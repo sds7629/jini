@@ -139,7 +139,7 @@ class FeedViewSet(viewsets.ModelViewSet):
     ).order_by("-created_at")
 
     filterset_class = FeedFilter
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination  # 프론트 구현 x
 
     def get_permissions(self):
         permission_classes = []
@@ -166,10 +166,10 @@ class FeedViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        # page = self.paginate_queryset(queryset)    # 프론트 구현 x
+        # if page is not None:
+        #     serializer = self.get_serializer(page, many=True)
+        #     return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(
             queryset,
