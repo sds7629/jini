@@ -256,7 +256,7 @@ def validate_nickname(request):
             value={
                 "current_password": "current_password",
                 "password_1": "password_1",
-                "password_2": "pssword_2",
+                "password_2": "password_2",
             },
         ),
     ],
