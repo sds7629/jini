@@ -43,6 +43,7 @@ class GetFeedSerializer(serializers.ModelSerializer):
         try:
             request = self.context["request"]
             return obj.like_users.filter(pk=request.user.pk).exists()
+            # return obj.objects.filter(like_users__user__id=request.user.pk).exists()
         except:
             return False
 
@@ -93,3 +94,78 @@ class FeedDetailSerializer(serializers.ModelSerializer):
                 }
             )
         return reviews
+
+
+class TestSerializer(serializers.ModelSerializer):
+    # writer = serializers.SerializerMethodField()
+    # category = serializers.SerializerMethodField()
+    # review_count = serializers.SerializerMethodField()
+    # likes_count = serializers.SerializerMethodField()
+    # # is_like = serializers.SerializerMethodField()
+
+    # class Meta:
+    #     model = Feed
+    #     exclude = ("like_users",)
+
+    # def get_writer(self, obj):
+    #     return {"nickname": obj.feed_nickname, "profile": obj.feed_profile}
+
+    # def get_category(self, obj):
+    #     return obj.kind
+
+    # def get_review_count(self, obj):
+    #     return len(obj.reviews_review)
+
+    # def get_likes_count(self, obj):
+    #     return obj.likes_count
+
+    # def get_is_like(self, obj):
+    #     try:
+    #         request = self.context["request"]
+    #         return obj.like_users.filter(pk=request.user.pk).exists()
+    #     except:
+    #         return False
+    def to_representation(self, instance):
+        repr = {
+            "pk": instance.pk,
+            "writer": {
+                "nickname": instance.feed_nickname,
+                "profile": instance.feed_profile,
+            },
+            "category": instance.kind,
+            "review_count": len(instance.reviews_review),
+            "get_review_count": instance.likes_count,
+            "title": instance.title,
+            "content": instance.content,
+            "file": instance.file,
+            "is_secret": instance.is_secret,
+        }
+        if self.context["request"].user in instance.like_confirm:
+            repr["is_like"] = True
+        else:
+            repr["is_like"] = False
+        return repr
+        # return {
+        #     "pk": instance.pk,
+        #     "writer": {
+        #         "nickname": instance.feed_nickname,
+        #         "profile": instance.feed_profile,
+        #     },
+        #     "category": instance.kind,
+        #     "review_count": len(instance.reviews_review),
+        #     "get_review_count": instance.likes_count,
+        #     # "is_like": instance.like_users.filter(
+        #     #     pk=self.context["request"].user.pk
+        #     # ).exists(),
+        #     # "is_like": instance.filter(
+        #     #     like_users__pk=self.context["request"].user.pk
+        #     # ).exists(),
+        #     "title": instance.title,
+        #     "content": instance.content,
+        #     "file": instance.file,
+        #     "is_secret": instance.is_secret,
+        # }
+
+    class Meta:
+        model = Feed
+        exclude = ("like_users",)

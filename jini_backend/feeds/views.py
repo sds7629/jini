@@ -42,7 +42,9 @@ def my_secret_feed(request):
             likes_count=Count("like_users"),
         )
         .select_related("writer", "category")
+        .filter(is_secret=True, writer=request.user)
         .only("writer", "category", "like_users", "title", "content", "is_secret")
+        .order_by("-created_at")
         .prefetch_related(
             Prefetch(
                 "reviews",
@@ -54,9 +56,8 @@ def my_secret_feed(request):
             ),
             "like_users",
         )
-        .filter(is_secret=True, writer=request.user)
-        .order_by("-created_at")
     )
+
     return Response(serializers.GetFeedSerializer(queryset, many=True).data)
 
 
@@ -123,7 +124,10 @@ class FeedViewSet(viewsets.ModelViewSet):
             likes_count=Count("like_users"),
         )
         .select_related("writer", "category")
-        .only("writer", "category", "like_users", "title", "content", "is_secret")
+        .filter(is_secret=False)
+        .only(
+            "writer", "category", "like_users", "title", "content", "is_secret", "file"
+        )
         .prefetch_related(
             Prefetch(
                 "reviews",
@@ -133,9 +137,12 @@ class FeedViewSet(viewsets.ModelViewSet):
                 ),
                 to_attr="reviews_review",
             ),
-            "like_users",
+            Prefetch(
+                "like_users",
+                queryset=User.objects.all().only("pk"),
+                to_attr="like_confirm",
+            ),
         )
-        .filter(is_secret=False)
     ).order_by("-created_at")
 
     filterset_class = FeedFilter
@@ -165,17 +172,21 @@ class FeedViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         # page = self.paginate_queryset(queryset)    # 프론트 구현 x
         # if page is not None:
         #     serializer = self.get_serializer(page, many=True)
         #     return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(
-            queryset,
-            many=True,
-            context={"request": request},
+        # serializer = self.get_serializer(
+        #     queryset,
+        #     many=True,
+        #     # context={"request": request},
+        # )
+
+        serializer = serializers.TestSerializer(
+            queryset, many=True, context={"request": request}
         )
+
         return Response(serializer.data)
 
     @extend_schema(
